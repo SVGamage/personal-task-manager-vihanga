@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7647e168-6697-4454-aaa6-50e7acbd0e05" name="Changes" comment="feat:install prisma client">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="7647e168-6697-4454-aaa6-50e7acbd0e05" name="Changes" comment="feat:prisma client instant">
+      <change afterPath="$PROJECT_DIR$/lib/prisma.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -109,7 +112,8 @@
       <workItem from="1741164288419" duration="2529000" />
       <workItem from="1741166865704" duration="46000" />
       <workItem from="1741166922007" duration="1699000" />
-      <workItem from="1741168858633" duration="242000" />
+      <workItem from="1741168858633" duration="959000" />
+      <workItem from="1741169843849" duration="4386000" />
     </task>
     <task id="LOCAL-00001" summary="project initialized">
       <option name="closed" value="true" />
@@ -135,7 +139,23 @@
       <option name="project" value="LOCAL" />
       <updated>1741169075604</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="refactor:update .gitignore">
+      <option name="closed" value="true" />
+      <created>1741169624870</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1741169624870</updated>
+    </task>
+    <task id="LOCAL-00005" summary="feat:generate prisma schema">
+      <option name="closed" value="true" />
+      <created>1741169686197</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1741169686197</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -156,7 +176,10 @@
     <MESSAGE value="project initialized" />
     <MESSAGE value="refactor: remove default template" />
     <MESSAGE value="feat:install prisma client" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat:install prisma client" />
+    <MESSAGE value="refactor:update .gitignore" />
+    <MESSAGE value="feat:generate prisma schema" />
+    <MESSAGE value="feat:prisma client instant" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat:prisma client instant" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
