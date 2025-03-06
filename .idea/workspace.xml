@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7647e168-6697-4454-aaa6-50e7acbd0e05" name="Changes" comment="project initialized">
+    <list default="true" id="7647e168-6697-4454-aaa6-50e7acbd0e05" name="Changes" comment="feat:prisma client instant">
       <change beforePath="$PROJECT_DIR$/src/app/fonts/GeistMonoVF.woff" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/fonts/GeistVF.woff" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/layout.tsx" afterDir="false" />
