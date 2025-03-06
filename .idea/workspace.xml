@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7647e168-6697-4454-aaa6-50e7acbd0e05" name="Changes" comment="project initialized">
-      <change afterPath="$PROJECT_DIR$/src/middleware.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="7647e168-6697-4454-aaa6-50e7acbd0e05" name="Changes" comment="feat:prisma client instant">
+      <change afterPath="$PROJECT_DIR$/lib/prisma.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,6 +30,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -47,6 +52,9 @@
     &quot;accountId&quot;: &quot;211a868f-abd0-44a3-ab3e-702cb38c57cb&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -55,6 +63,7 @@
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
@@ -75,31 +84,7 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.25659.39" />
-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.25659.39" />
-      </set>
-    </attachedChunks>
-  </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
-  <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="7647e168-6697-4454-aaa6-50e7acbd0e05" name="Changes" comment="" />
-      <created>1741087777911</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1741087777911</updated>
-      <workItem from="1741087779297" duration="205000" />
-      <workItem from="1741087999626" duration="103000" />
-      <workItem from="1741088131171" duration="9000" />
-      <workItem from="1741088155468" duration="773000" />
-      <workItem from="1741088955415" duration="62000" />
-      <workItem from="1741117505285" duration="3000" />
-      <workItem from="1741164288419" duration="2425000" />
-      <workItem from="1741254142997" duration="71000" />
-      <workItem from="1741254225837" duration="197000" />
+
     </task>
     <task id="LOCAL-00001" summary="project initialized">
       <option name="closed" value="true" />
@@ -109,7 +94,39 @@
       <option name="project" value="LOCAL" />
       <updated>1741166229335</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="refactor: remove default template">
+      <option name="closed" value="true" />
+      <created>1741166811767</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1741166811767</updated>
+    </task>
+    <task id="LOCAL-00003" summary="feat:install prisma client">
+      <option name="closed" value="true" />
+      <created>1741169075604</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1741169075604</updated>
+    </task>
+    <task id="LOCAL-00004" summary="refactor:update .gitignore">
+      <option name="closed" value="true" />
+      <created>1741169624870</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1741169624870</updated>
+    </task>
+    <task id="LOCAL-00005" summary="feat:generate prisma schema">
+      <option name="closed" value="true" />
+      <created>1741169686197</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1741169686197</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -128,7 +145,12 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="project initialized" />
-    <option name="LAST_COMMIT_MESSAGE" value="project initialized" />
+    <MESSAGE value="refactor: remove default template" />
+    <MESSAGE value="feat:install prisma client" />
+    <MESSAGE value="refactor:update .gitignore" />
+    <MESSAGE value="feat:generate prisma schema" />
+    <MESSAGE value="feat:prisma client instant" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat:prisma client instant" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
