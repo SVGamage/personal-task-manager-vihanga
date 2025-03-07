@@ -32,6 +32,12 @@ model Task {
   user         User           @relation(fields: [userId], references: [id])
   TaskLog      TaskLog[]
   TaskCategory TaskCategory[]
+
+  @@index([userId])
+  @@index([dueDate])
+  @@index([priority])
+  @@index([status])
+  @@index([userId, status])
 }
 
 model Category {
@@ -44,6 +50,9 @@ model Category {
 
   user         User           @relation(fields: [userId], references: [id])
   TaskCategory TaskCategory[]
+
+  @@index([userId])
+  @@index([name])
 }
 
 model TaskLog {
@@ -55,6 +64,11 @@ model TaskLog {
 
   task Task @relation(fields: [taskId], references: [id])
   user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([taskId])
+  @@index([createdAt])
+  @@index([taskId, createdAt])
 }
 
 model TaskCategory {
@@ -68,4 +82,6 @@ model TaskCategory {
   category Category @relation(fields: [categoryId], references: [id])
 
   @@unique([taskId, categoryId])
+  @@index([taskId])
+  @@index([categoryId])
 }
