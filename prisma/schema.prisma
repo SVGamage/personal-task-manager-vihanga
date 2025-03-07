@@ -6,3 +6,66 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  clerkUserId String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  Task     Task[]
+  Category Category[]
+  TaskLog  TaskLog[]
+}
+
+model Task {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  title       String
+  description String?
+  dueDate     DateTime
+  priority    String
+  status      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user         User           @relation(fields: [userId], references: [id])
+  TaskLog      TaskLog[]
+  TaskCategory TaskCategory[]
+}
+
+model Category {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user         User           @relation(fields: [userId], references: [id])
+  TaskCategory TaskCategory[]
+}
+
+model TaskLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  taskId    String   @db.ObjectId
+  action    String
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model TaskCategory {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  taskId     String   @db.ObjectId
+  categoryId String   @db.ObjectId
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  task     Task     @relation(fields: [taskId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([taskId, categoryId])
+}
