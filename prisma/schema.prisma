@@ -11,6 +11,7 @@ enum Status {
   PENDING
   ONGOING
   COMPLETED
+  DELETED
 }
 
 enum Priority {
