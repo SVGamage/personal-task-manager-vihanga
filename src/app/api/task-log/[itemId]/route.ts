@@ -1,6 +1,6 @@
 "use server";
 
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../../../lib/prisma";
 
 export async function GET(
@@ -17,16 +17,16 @@ export async function GET(
         task: true,
       },
     });
-    return {
+    return NextResponse.json({
       status: 200,
       message: "Task log retrieved successfully",
       data: taskLog,
-    };
+    });
   } catch (e) {
     console.error("Error getting the task log", e);
-    return {
-      status: 500,
-      message: "An unexpected error occurred",
-    };
+    return NextResponse.json(
+      { message: "An unexpected error occurred" },
+      { status: 500 }
+    );
   }
 }
