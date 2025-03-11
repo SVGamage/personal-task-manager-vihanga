@@ -33,6 +33,7 @@ export default function CategoryCardList() {
         return (
           <CategoryCard
             key={category.id}
+            id={category.id}
             title={category.title}
             description={category.description}
             taskCount={category.taskCount}
