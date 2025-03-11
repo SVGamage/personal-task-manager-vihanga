@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import Header from "@/components/header";
 import { Card } from "@/components/ui/card";
 import SideBar from "@/components/sidebar";
+import { ThemeProvider } from "next-themes";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,19 +20,26 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={"antialiased"}>
-          <div className="min-h-screen bg-background">
-            <Header />
-            <main className="container mx-auto px-4 py-8">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
-                <div className="hidden md:col-span-3 md:block">
-                  <Card className="p-4">
-                    <SideBar />
-                  </Card>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <div className="min-h-screen bg-background">
+              <Header />
+              <main className="container mx-auto px-4 py-8">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+                  <div className="hidden md:col-span-2 md:block">
+                    <Card className="p-4">
+                      <SideBar />
+                    </Card>
+                  </div>
+                  {children}
                 </div>
-                {children}
-              </div>
-            </main>
-          </div>
+              </main>
+            </div>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

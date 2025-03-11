@@ -1,5 +1,6 @@
 import { ListTodo } from "lucide-react";
 import MobileSidebar from "./mobile-sidebar";
+import { ThemeToggle } from "./theme-toggle";
 
 export default function Header() {
   return (
@@ -10,7 +11,10 @@ export default function Header() {
             <ListTodo className="h-6 w-6" />
             <h1 className="text-2xl font-bold">TaskMaster</h1>
           </div>
-          <MobileSidebar />
+          <div className="flex items-center gap-2">
+            <MobileSidebar />
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>
