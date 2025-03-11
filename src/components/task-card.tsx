@@ -2,23 +2,32 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { CalendarDays, Clock4 } from "lucide-react";
 
-export default function TaskCard() {
+interface TaskCardProps {
+  title: string;
+  description: string;
+  dueDate: string;
+  createdAt: string;
+}
+export default function TaskCard({
+  title,
+  description,
+  dueDate,
+  createdAt,
+}: TaskCardProps) {
   return (
     <Card className="p-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h3 className="font-semibold">Example Task Title</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            This is an example task description that shows how tasks will be
-            displayed.
-          </p>
+          <h3 className="font-semibold">{title}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
           <div className="mt-4 flex flex-wrap items-center gap-4">
             <div className="flex items-center text-sm text-muted-foreground">
               <CalendarDays className="mr-1 h-4 w-4" />
-              Due Tomorrow
+              {dueDate}
             </div>
             <div className="flex items-center text-sm text-muted-foreground">
-              <Clock4 className="mr-1 h-4 w-4" />2 days ago
+              <Clock4 className="mr-1 h-4 w-4" />
+              {createdAt}
             </div>
           </div>
         </div>
