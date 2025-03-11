@@ -4,6 +4,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { createTaskLogSchema } from "../../../../lib/validation/task-log";
 import prisma from "../../../../lib/prisma";
 
+export async function GET() {
+  try {
+    const taskLogs = await prisma.taskLog.findMany();
+    return NextResponse.json(
+      {
+        message: "Task logs retrieved successfully",
+        data: taskLogs,
+      },
+      { status: 200 }
+    );
+  } catch (e) {
+    console.error("Error getting the task logs", e);
+    return NextResponse.json(
+      { message: "An unexpected error occurred" },
+      { status: 500 }
+    );
+  }
+}
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
