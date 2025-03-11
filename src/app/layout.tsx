@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import Header from "@/components/header";
+import { Card } from "@/components/ui/card";
+import SideBar from "@/components/sidebar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,7 +18,21 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={"antialiased"}>{children}</body>
+        <body className={"antialiased"}>
+          <div className="min-h-screen bg-background">
+            <Header />
+            <main className="container mx-auto px-4 py-8">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+                <div className="hidden md:col-span-3 md:block">
+                  <Card className="p-4">
+                    <SideBar />
+                  </Card>
+                </div>
+                {children}
+              </div>
+            </main>
+          </div>
+        </body>
       </html>
     </ClerkProvider>
   );
