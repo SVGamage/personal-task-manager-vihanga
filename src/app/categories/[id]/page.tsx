@@ -1,5 +1,5 @@
 import AddTaskModal from "@/components/add-task-modal";
-import TaskCardList from "@/components/task-card-list";
+// import TaskCardList from "@/components/task-card-list";
 
 export default function Category() {
   return (
@@ -12,7 +12,7 @@ export default function Category() {
       </div>
 
       {/* Task Cards */}
-      <TaskCardList />
+      {/* <TaskCardList /> */}
     </div>
   );
 }

@@ -33,3 +33,14 @@ export interface TaskLog {
   action: string;
   createdAt: Date;
 }
+
+export interface TaskWithCategory {
+  id: string;
+  title: string;
+  description?: string;
+  dueDate: string;
+  createdAt: string;
+  priority: Priority;
+  status: Status;
+  categories: string[];
+}
