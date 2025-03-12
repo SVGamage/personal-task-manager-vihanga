@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import TaskCardList from "@/components/task-card-list";
+import NewTaskModal from "@/components/new-task-modal";
 
 export default function Home() {
   return (
@@ -35,7 +36,7 @@ export default function Home() {
               <DropdownMenuItem>Created Date</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button>New Task</Button>
+          <NewTaskModal />
         </div>
       </div>
 
