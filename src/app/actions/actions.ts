@@ -2,7 +2,7 @@
 
 import { createTask } from "@/components/new-task-modal";
 import prisma from "../../../lib/prisma";
-import { TaskWithCategory } from "../types";
+import { CategoryWithTaskCount, TaskWithCategory } from "../types";
 
 export const getAllTasksWithCategoryNames = async () => {
   const pipeline = [
@@ -88,5 +88,21 @@ export const createNewTask = async (formData: createTask) => {
   } catch (err) {
     console.error(err);
     return err;
+  }
+};
+
+export const getAllCategories = async () => {
+  try {
+    const categories: CategoryWithTaskCount[] = await prisma.category.findMany({
+      include: {
+        _count: {
+          select: { TaskCategory: true },
+        },
+      },
+    });
+    return categories;
+  } catch (err) {
+    console.error(err);
+    return [];
   }
 };

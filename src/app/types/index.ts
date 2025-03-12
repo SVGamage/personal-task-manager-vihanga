@@ -23,8 +23,11 @@ export interface Task {
 
 export interface Category {
   id: string;
+  userId: string;
   name: string;
-  description?: string;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface TaskLog {
@@ -44,3 +47,7 @@ export interface TaskWithCategory {
   status: Status;
   categories: string[];
 }
+
+export type CategoryWithTaskCount = Category & {
+  _count: { TaskCategory: number };
+};

@@ -1,29 +1,27 @@
 import Link from "next/link";
 import { Card } from "./ui/card";
+import { CategoryWithTaskCount } from "@/app/types";
+import { Badge } from "./ui/badge";
 
 interface CategoryCardProps {
-  id: number;
-  title: string;
-  description: string;
-  taskCount: number;
+  category: CategoryWithTaskCount;
 }
-export default function CategoryCard({
-  id,
-  title,
-  description,
-  taskCount,
-}: CategoryCardProps) {
+export default function CategoryCard({ category }: CategoryCardProps) {
   return (
-    <Link href={`/categories/${id}`}>
+    <Link href={`/categories/${category.id}`}>
       <Card className="p-4">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="font-semibold">{title}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+            <h3 className="font-semibold text-lg">{category.name}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {category.description}
+            </p>
           </div>
         </div>
         <div className="mt-4">
-          <p className="text-sm text-muted-foreground">{taskCount}</p>
+          <Badge variant="secondary">
+            {category._count.TaskCategory} Tasks
+          </Badge>
         </div>
       </Card>
     </Link>
