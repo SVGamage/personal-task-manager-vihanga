@@ -42,6 +42,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "../lib/utils";
 import { Priority, Status } from "@/app/types";
+import { createNewTask } from "@/app/actions/actions";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -52,6 +54,7 @@ const formSchema = z.object({
   priority: z.nativeEnum(Priority),
   status: z.nativeEnum(Status),
 });
+export type createTask = z.infer<typeof formSchema>;
 
 export default function NewTaskModal() {
   const [open, setOpen] = React.useState(false);
@@ -64,11 +67,21 @@ export default function NewTaskModal() {
       priority: Priority.MEDIUM,
     },
   });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    setOpen(false);
-    form.reset();
+  async function onSubmit(values: createTask) {
+    try {
+      const newTask = await createNewTask(values);
+      toast("Task created successfully", {
+        type: "success",
+        position: "top-right",
+      });
+      setOpen(false);
+      form.reset();
+    } catch (err) {
+      toast("Failed to create task", {
+        type: "error",
+        position: "top-right",
+      });
+    }
   }
 
   return (

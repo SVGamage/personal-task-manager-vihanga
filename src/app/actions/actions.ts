@@ -1,5 +1,6 @@
 "use server";
 
+import { createTask } from "@/components/new-task-modal";
 import prisma from "../../../lib/prisma";
 import { TaskWithCategory } from "../types";
 
@@ -57,5 +58,35 @@ export const getAllTasksWithCategoryNames = async () => {
   } catch (err) {
     console.error(err);
     return [];
+  }
+};
+
+export const createNewTask = async (formData: createTask) => {
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const task = await tx.task.create({
+        data: {
+          userId: "67d15352c065781b4e6bf32d",
+          title: formData.title,
+          description: formData.description,
+          dueDate: formData.dueDate,
+          priority: formData.priority,
+          status: formData.status,
+        },
+      });
+
+      const taskLog = await tx.taskLog.create({
+        data: {
+          taskId: task.id,
+          action: "CREATED",
+        },
+      });
+
+      return task;
+    });
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
   }
 };

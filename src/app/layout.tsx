@@ -5,6 +5,7 @@ import Header from "@/components/header";
 import { Card } from "@/components/ui/card";
 import SideBar from "@/components/sidebar";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -40,6 +41,7 @@ export default function RootLayout({
               </main>
             </div>
           </ThemeProvider>
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>
