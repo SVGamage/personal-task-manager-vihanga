@@ -25,26 +25,40 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { createNewCategory } from "@/app/actions/actions";
+import { toast } from "sonner";
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  name: z.string().min(1, "Title is required"),
   description: z.string().optional(),
 });
 
+export type CreateCategoryFormValues = z.infer<typeof formSchema>;
 export default function NewCategoryModal() {
   const [open, setOpen] = React.useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
+      name: "",
       description: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    setOpen(false);
-    form.reset();
+  async function onSubmit(values: CreateCategoryFormValues) {
+    try {
+      const newCategory = await createNewCategory(values);
+      toast("Category created successfully", {
+        type: "success",
+        position: "top-right",
+      });
+      setOpen(false);
+      form.reset();
+    } catch (err) {
+      toast("Failed to create category", {
+        type: "error",
+        position: "top-right",
+      });
+    }
   }
 
   return (
@@ -64,10 +78,10 @@ export default function NewCategoryModal() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="title"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter category title" {...field} />
                   </FormControl>

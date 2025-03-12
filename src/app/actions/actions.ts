@@ -3,6 +3,7 @@
 import { createTask } from "@/components/new-task-modal";
 import prisma from "../../../lib/prisma";
 import { CategoryWithTaskCount, TaskWithCategory } from "../types";
+import { CreateCategoryFormValues } from "@/components/new-category-modal";
 
 export const getAllTasksWithCategoryNames = async () => {
   const pipeline = [
@@ -104,5 +105,21 @@ export const getAllCategories = async () => {
   } catch (err) {
     console.error(err);
     return [];
+  }
+};
+
+export const createNewCategory = async (formData: CreateCategoryFormValues) => {
+  try {
+    const category = await prisma.category.create({
+      data: {
+        userId: "67d15352c065781b4e6bf32d",
+        name: formData.name,
+        description: formData.description,
+      },
+    });
+    return category;
+  } catch (err) {
+    console.error(err);
+    return err;
   }
 };
