@@ -8,7 +8,7 @@ interface CategoryCardProps {
 }
 export default function CategoryCard({ category }: CategoryCardProps) {
   return (
-    <Link href={`/categories/${category.id}`}>
+    <Link href={`/categories/${category.id}?name=${category.name}`}>
       <Card className="p-4">
         <div className="flex items-start justify-between">
           <div>

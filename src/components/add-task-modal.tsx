@@ -18,35 +18,19 @@ import {
   MultiSelectDropdown,
   type Option,
 } from "@/components/multi-select-dropdown";
-
-const tasks: Option[] = [
-  {
-    id: "1",
-    title: "Design a new logo",
-  },
-  {
-    id: "2",
-    title: "Update the website",
-  },
-  {
-    id: "3",
-    title: "Create a new blog post",
-  },
-  {
-    id: "4",
-    title: "Update the website",
-  },
-  {
-    id: "5",
-    title: "Create a new blog post",
-  },
-];
+import { createTaskCategories } from "@/app/actions/actions";
+import { toast } from "sonner";
 
 interface FormData {
   tasks: string[];
 }
 
-export default function AddTaskModal() {
+interface AddTaskModalProps {
+  categoryId: string;
+  tasks: Option[];
+}
+
+export default function AddTaskModal({ categoryId, tasks }: AddTaskModalProps) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     tasks: [],
@@ -56,14 +40,28 @@ export default function AddTaskModal() {
     setFormData((prev) => ({ ...prev, tasks: selected }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("Form submitted:", formData);
-    setOpen(false);
-    setFormData({
-      tasks: [],
-    });
+    try {
+      const newTaskCategories = await createTaskCategories(
+        formData.tasks,
+        categoryId
+      );
+      toast("Tasks added to the category successfully!", {
+        type: "success",
+        position: "top-right",
+      });
+      setOpen(false);
+      setFormData({
+        tasks: [],
+      });
+    } catch (err) {
+      toast("Failed to add tasks to the category!", {
+        type: "error",
+        position: "top-right",
+      });
+    }
   };
 
   return (

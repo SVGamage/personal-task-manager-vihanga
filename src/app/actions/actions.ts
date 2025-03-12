@@ -123,3 +123,39 @@ export const createNewCategory = async (formData: CreateCategoryFormValues) => {
     return err;
   }
 };
+
+export const getAllTasks = async () => {
+  try {
+    const tasks = await prisma.task.findMany({
+      select: {
+        id: true,
+        title: true,
+      },
+    });
+    return tasks;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+};
+
+export const createTaskCategories = async (
+  taskIds: string[],
+  categoryId: string
+) => {
+  try {
+    const taskCategories = taskIds.map((taskId) => {
+      return {
+        taskId,
+        categoryId,
+      };
+    });
+    const newTaskCategories = await prisma.taskCategory.createMany({
+      data: taskCategories,
+    });
+    return newTaskCategories;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
