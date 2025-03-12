@@ -32,9 +32,11 @@ export default function RootLayout({
               <main className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
                   <div className="hidden md:col-span-2 md:block">
-                    <Card className="p-4">
-                      <SideBar />
-                    </Card>
+                    <div className="sticky top-[5.5rem]">
+                      <Card className="p-4">
+                        <SideBar />
+                      </Card>
+                    </div>
                   </div>
                   {children}
                 </div>
