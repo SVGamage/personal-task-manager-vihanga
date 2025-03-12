@@ -1,4 +1,4 @@
-import { Status } from "@/app/types";
+import { Priority, Status } from "@/app/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -52,4 +52,22 @@ export function statusMap(status: Status) {
     DELETED: "Deleted",
   };
   return statusMap[status];
+}
+
+export function priorityMap(priority: Priority) {
+  const priorityMap = {
+    LOW: "Low",
+    MEDIUM: "Medium",
+    HIGH: "High",
+  };
+  return priorityMap[priority];
+}
+
+export function priorityColor(priority: Priority) {
+  const priorityColor = {
+    LOW: "text-green-500",
+    MEDIUM: "text-yellow-500",
+    HIGH: "text-red-500",
+  };
+  return priorityColor[priority];
 }

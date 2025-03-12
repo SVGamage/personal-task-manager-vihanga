@@ -1,5 +1,10 @@
 "use client";
-import { formatDateToReadable, statusMap } from "@/lib/utils";
+import {
+  formatDateToReadable,
+  priorityColor,
+  priorityMap,
+  statusMap,
+} from "@/lib/utils";
 import { Card } from "./ui/card";
 import { CalendarDays, Clock4 } from "lucide-react";
 import { Badge } from "./ui/badge";
@@ -39,7 +44,7 @@ export default function TaskCard({ task }: TaskCardProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge>{task.priority}</Badge>
+          <Badge>{priorityMap(task.priority)}</Badge>
           <Select onValueChange={(value) => console.log(value)}>
             <SelectTrigger className="w-[120px]">
               <SelectValue placeholder={statusMap(task.status)} />
