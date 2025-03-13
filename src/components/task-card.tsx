@@ -35,11 +35,11 @@ export default function TaskCard({ task }: TaskCardProps) {
           <div className="mt-4 flex flex-wrap items-center gap-4">
             <div className="flex items-center text-sm text-muted-foreground">
               <CalendarDays className="mr-1 h-4 w-4" />
-              {formatDateToReadable(task.dueDate)}
+              Due on {formatDateToReadable(task.dueDate)}
             </div>
             <div className="flex items-center text-sm text-muted-foreground">
               <Clock4 className="mr-1 h-4 w-4" />
-              {formatDateToReadable(task.createdAt)}
+              Created on {formatDateToReadable(task.createdAt)}
             </div>
           </div>
         </div>

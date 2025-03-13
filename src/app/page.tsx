@@ -1,11 +1,21 @@
 import TaskCardList from "@/components/task-card-list";
 import NewTaskModal from "@/components/new-task-modal";
 import { getAllTasksWithCategoryNames } from "./actions/actions";
-import { TaskWithCategory } from "./types";
+import { SortField, Status, TaskWithCategory } from "./types";
 import TaskFilters from "@/components/task-filters";
 
-export default async function Home() {
-  const tasks: TaskWithCategory[] = await getAllTasksWithCategoryNames();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { status: Status; sort: SortField };
+}) {
+  const status = searchParams.status;
+  const sort = searchParams.sort;
+  const tasks: TaskWithCategory[] = await getAllTasksWithCategoryNames({
+    userId: "67d15352c065781b4e6bf32d",
+    status,
+    sort,
+  });
 
   return (
     <div className="md:col-span-9">

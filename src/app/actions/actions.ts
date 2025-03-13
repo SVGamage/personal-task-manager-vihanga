@@ -2,11 +2,35 @@
 
 import { createTask } from "@/components/new-task-modal";
 import prisma from "../../../lib/prisma";
-import { CategoryWithTaskCount, TaskWithCategory } from "../types";
+import {
+  CategoryWithTaskCount,
+  SortField,
+  Status,
+  TaskWithCategory,
+} from "../types";
 import { CreateCategoryFormValues } from "@/components/new-category-modal";
 
-export const getAllTasksWithCategoryNames = async () => {
+interface GetTasksParams {
+  userId: string;
+  status?: Status;
+  sort?: SortField;
+  skip?: number;
+  take?: number;
+}
+export const getAllTasksWithCategoryNames = async ({
+  userId,
+  status,
+  sort,
+  skip = 0,
+  take = 10,
+}: GetTasksParams) => {
   const pipeline = [
+    {
+      $match: {
+        userId: { $oid: userId },
+        ...(status ? { status } : {}),
+      },
+    },
     {
       $lookup: {
         from: "TaskCategory",
@@ -33,6 +57,50 @@ export const getAllTasksWithCategoryNames = async () => {
         ],
         as: "categories",
       },
+    },
+    ...(sort === "priority"
+      ? [
+          {
+            $project: {
+              title: 1,
+              description: 1,
+              dueDate: 1,
+              priority: 1,
+              status: 1,
+              createdAt: 1,
+              taskCategories: 1,
+              categories: 1,
+              priorityOrder: {
+                $switch: {
+                  branches: [
+                    { case: { $eq: ["$priority", "HIGH"] }, then: 3 },
+                    { case: { $eq: ["$priority", "MEDIUM"] }, then: 2 },
+                    { case: { $eq: ["$priority", "LOW"] }, then: 1 },
+                  ],
+                  default: 0,
+                },
+              },
+            },
+          },
+        ]
+      : []),
+    ...(sort
+      ? [
+          {
+            $sort:
+              sort === "priority"
+                ? { priorityOrder: -1 }
+                : sort === "dueDate"
+                ? { dueDate: 1 }
+                : { createdAt: -1 },
+          },
+        ]
+      : []),
+    {
+      $skip: skip,
+    },
+    {
+      $limit: take,
     },
     {
       $project: {

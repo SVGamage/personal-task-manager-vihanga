@@ -51,3 +51,5 @@ export interface TaskWithCategory {
 export type CategoryWithTaskCount = Category & {
   _count: { TaskCategory: number };
 };
+
+export type SortField = "dueDate" | "priority" | "createdAt";
