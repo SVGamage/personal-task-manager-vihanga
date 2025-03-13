@@ -1,8 +1,8 @@
 "use server";
 
 import { NextRequest, NextResponse } from "next/server";
-import { updateCategorySchema } from "../../../../../lib/validation/category";
-import prisma from "../../../../../lib/prisma";
+import { updateCategorySchema } from "@/lib/validation/category";
+import prisma from "../../../../lib/prisma";
 
 export async function GET(
   request: NextRequest,

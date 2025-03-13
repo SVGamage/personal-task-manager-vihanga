@@ -1,7 +1,7 @@
 "use server";
 
 import { NextRequest } from "next/server";
-import prisma from "../../../../lib/prisma";
+import prisma from "../../../lib/prisma";
 import { Action } from "@prisma/client";
 
 export async function GET(request: NextRequest) {

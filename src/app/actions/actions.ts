@@ -1,7 +1,7 @@
 "use server";
 
 import { createTask } from "@/components/new-task-modal";
-import prisma from "../../../lib/prisma";
+import prisma from "../../lib/prisma";
 import {
   CategoryWithTaskCount,
   SortField,
