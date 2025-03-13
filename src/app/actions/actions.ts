@@ -344,3 +344,16 @@ export const getTasksByCategory = async ({
     return [];
   }
 };
+
+export const createUser = async (clerkUserId: string) => {
+  try {
+    const user = await prisma.user.create({
+      data: {
+        clerkUserId,
+      },
+    });
+    return user;
+  } catch (err) {
+    console.error(err);
+  }
+};
