@@ -9,6 +9,7 @@ import {
   TaskWithCategory,
 } from "../types";
 import { CreateCategoryFormValues } from "@/components/new-category-modal";
+import { revalidatePath } from "next/cache";
 
 interface GetTasksParams {
   userId: string;
@@ -154,6 +155,8 @@ export const createNewTask = async (formData: createTask) => {
 
       return task;
     });
+    revalidatePath("/");
+    revalidatePath("/logs");
     return result;
   } catch (err) {
     console.error(err);
@@ -186,6 +189,7 @@ export const createNewCategory = async (formData: CreateCategoryFormValues) => {
         description: formData.description,
       },
     });
+    revalidatePath("/categories");
     return category;
   } catch (err) {
     console.error(err);
@@ -222,6 +226,7 @@ export const createTaskCategories = async (
     const newTaskCategories = await prisma.taskCategory.createMany({
       data: taskCategories,
     });
+    revalidatePath(`/categories/${categoryId}`);
     return newTaskCategories;
   } catch (err) {
     console.error(err);
