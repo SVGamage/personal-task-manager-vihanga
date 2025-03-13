@@ -9,6 +9,7 @@ import {
   TaskWithCategory,
 } from "../types";
 import { CreateCategoryFormValues } from "@/components/new-category-modal";
+import { Prisma } from "@prisma/client";
 
 interface GetTasksParams {
   userId: string;
@@ -132,28 +133,30 @@ export const getAllTasksWithCategoryNames = async ({
 
 export const createNewTask = async (formData: createTask) => {
   try {
-    const result = await prisma.$transaction(async (tx) => {
-      const task = await tx.task.create({
-        data: {
-          userId: "67d15352c065781b4e6bf32d",
-          title: formData.title,
-          description: formData.description,
-          dueDate: formData.dueDate,
-          priority: formData.priority,
-          status: formData.status,
-        },
-      });
+    const result = await prisma.$transaction(
+      async (tx: Prisma.TransactionClient) => {
+        const task = await tx.task.create({
+          data: {
+            userId: "67d15352c065781b4e6bf32d",
+            title: formData.title,
+            description: formData.description,
+            dueDate: formData.dueDate,
+            priority: formData.priority,
+            status: formData.status,
+          },
+        });
 
-      await tx.taskLog.create({
-        data: {
-          taskId: task.id,
-          title: "Task Created",
-          action: "CREATED",
-        },
-      });
+        await tx.taskLog.create({
+          data: {
+            taskId: task.id,
+            title: "Task Created",
+            action: "CREATED",
+          },
+        });
 
-      return task;
-    });
+        return task;
+      }
+    );
     return result;
   } catch (err) {
     console.error(err);
