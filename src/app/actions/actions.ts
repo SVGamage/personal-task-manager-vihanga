@@ -144,7 +144,7 @@ export const createNewTask = async (formData: createTask) => {
         },
       });
 
-      const taskLog = await tx.taskLog.create({
+      await tx.taskLog.create({
         data: {
           taskId: task.id,
           title: "Task Created",

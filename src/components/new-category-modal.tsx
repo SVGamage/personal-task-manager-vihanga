@@ -46,16 +46,15 @@ export default function NewCategoryModal() {
 
   async function onSubmit(values: CreateCategoryFormValues) {
     try {
-      const newCategory = await createNewCategory(values);
-      toast("Category created successfully", {
-        type: "success",
+      await createNewCategory(values);
+      toast.success("Category created successfully", {
         position: "top-right",
       });
       setOpen(false);
       form.reset();
     } catch (err) {
-      toast("Failed to create category", {
-        type: "error",
+      console.error(err);
+      toast.error("Failed to create category", {
         position: "top-right",
       });
     }
