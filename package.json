@@ -39,6 +39,7 @@
     "select": "^1.1.2",
     "shadcn": "2.4.0-canary.12",
     "sonner": "^2.0.1",
+    "svix": "^1.61.4",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2"
