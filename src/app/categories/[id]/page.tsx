@@ -1,7 +1,6 @@
-import { getAllTasks } from "@/app/actions/actions";
+import { getAllTasks, getTasksByCategory } from "@/app/actions/actions";
 import AddTaskModal from "@/components/add-task-modal";
-
-// import TaskCardList from "@/components/task-card-list";
+import TaskCardList from "@/components/task-card-list";
 
 export default async function Category({
   params,
@@ -13,6 +12,10 @@ export default async function Category({
   const categoryId = params.id;
   const categoryName = searchParams.name;
   const tasks = await getAllTasks();
+  const tasksForCategory = await getTasksByCategory({
+    categoryId,
+    userId: "67d15352c065781b4e6bf32d",
+  });
   return (
     <div className="md:col-span-9">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -23,7 +26,7 @@ export default async function Category({
       </div>
 
       {/* Task Cards */}
-      {/* <TaskCardList /> */}
+      <TaskCardList tasks={tasksForCategory} />
     </div>
   );
 }
