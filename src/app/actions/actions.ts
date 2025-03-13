@@ -147,6 +147,7 @@ export const createNewTask = async (formData: createTask) => {
       const taskLog = await tx.taskLog.create({
         data: {
           taskId: task.id,
+          title: "Task Created",
           action: "CREATED",
         },
       });
@@ -225,5 +226,26 @@ export const createTaskCategories = async (
   } catch (err) {
     console.error(err);
     return err;
+  }
+};
+
+export const getAllTaskLogs = async () => {
+  try {
+    const taskLogs = await prisma.taskLog.findMany({
+      include: {
+        task: {
+          select: {
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return taskLogs;
+  } catch (err) {
+    console.error(err);
+    return [];
   }
 };

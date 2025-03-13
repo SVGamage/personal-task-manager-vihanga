@@ -1,16 +1,12 @@
+import { TaskLog } from "@/app/types";
 import { Card } from "./ui/card";
 import { History } from "lucide-react";
+import { timeAgo } from "@/lib/utils";
 
 interface LogCardProps {
-  title: string;
-  description: string;
-  createdAt: string;
+  taskLog: TaskLog;
 }
-export default function LogCard({
-  title,
-  description,
-  createdAt,
-}: LogCardProps) {
+export default function LogCard({ taskLog }: LogCardProps) {
   return (
     <Card className="p-4">
       <div className="flex items-center gap-4">
@@ -18,9 +14,11 @@ export default function LogCard({
           <History className="h-4 w-4 text-yellow-600 dark:text-yellow-300" />
         </div>
         <div className="flex-1">
-          <p className="font-medium">{title}</p>
-          <p className="text-sm text-muted-foreground">{description}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{createdAt}</p>
+          <p className="font-semibold text-lg">{taskLog.title}</p>
+          <p className="text-sm text-muted-foreground">{taskLog.task.title}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {timeAgo(taskLog.createdAt)}
+          </p>
         </div>
       </div>
     </Card>

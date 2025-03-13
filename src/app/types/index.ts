@@ -1,3 +1,5 @@
+import { Action } from "@prisma/client";
+
 export enum Status {
   PENDING = "PENDING",
   ONGOING = "ONGOING",
@@ -10,6 +12,7 @@ export enum Priority {
   MEDIUM = "MEDIUM",
   HIGH = "HIGH",
 }
+export type Actions = "CREATED" | "UPDATED" | "DELETED";
 
 export interface Task {
   id: string;
@@ -33,8 +36,10 @@ export interface Category {
 export interface TaskLog {
   id: string;
   taskId: string;
-  action: string;
+  action: Action;
+  title: string | null;
   createdAt: Date;
+  task: { title: string };
 }
 
 export interface TaskWithCategory {
