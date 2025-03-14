@@ -10,7 +10,7 @@ export default function SideBar() {
 
   return (
     <div className="flex flex-col gap-2">
-      <Link href="/">
+      <Link href="/tasks">
         <Button
           variant={pathname === "/" ? "default" : "ghost"}
           className="w-full justify-start"
