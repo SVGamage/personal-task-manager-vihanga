@@ -1,26 +1,29 @@
 "use client";
-import {
-  formatDateToReadable,
-  priorityMap,
-  statusMap,
-} from "@/lib/utils";
+import { formatDateToReadable, priorityMap, statusMap } from "@/lib/utils";
 import { Card } from "./ui/card";
 import { CalendarDays, Clock4 } from "lucide-react";
-import { Badge } from "./ui/badge";
 import { TaskWithCategory } from "@/app/types";
 
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import UpdateTaskModal from "./update-task-modal";
+import CategoryGroup from "./category-group";
+import SelectMenu from "./select-menu";
+import DeleteTaskModal from "./delete-task-modal";
 
 interface TaskCardProps {
   task: TaskWithCategory;
 }
+
+const selectStatusGroup = [
+  { value: "PENDING", label: "Pending" },
+  { value: "ONGOING", label: "Ongoing" },
+  { value: "COMPLETED", label: "Completed" },
+];
+
+const selectPriorityGroup = [
+  { value: "LOW", label: "Low" },
+  { value: "MEDIUM", label: "Medium" },
+  { value: "HIGH", label: "High" },
+];
 export default function TaskCard({ task }: TaskCardProps) {
   return (
     <Card className="p-4">
@@ -42,29 +45,32 @@ export default function TaskCard({ task }: TaskCardProps) {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge>{priorityMap(task.priority)}</Badge>
-          <Select onValueChange={(value) => console.log(value)}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder={statusMap(task.status)} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup defaultValue={task.status}>
-                <SelectItem value="PENDING">Pending</SelectItem>
-                <SelectItem value="ONGOING">Ongoing</SelectItem>
-                <SelectItem value="COMPLETED">Completed</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <SelectMenu
+            defaultValue={task.priority}
+            placeholder={priorityMap(task.priority)}
+            selectGroup={selectPriorityGroup}
+            onValueChange={(value) => {
+              console.log(value);
+            }}
+            className="w-[100px] font-semibold"
+          />
+          <SelectMenu
+            defaultValue={task.status}
+            placeholder={statusMap(task.status)}
+            selectGroup={selectStatusGroup}
+            onValueChange={(value) => {
+              console.log(value);
+            }}
+            className="w-[100px] font-semibold"
+          />
+          <div className="flex gap-2">
+            <UpdateTaskModal task={task} />
+            <DeleteTaskModal task={task} />
+          </div>
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {task.categories.map((category) => (
-          <Badge key={category} variant="secondary">
-            {category}
-          </Badge>
-        ))}
-      </div>
+      <CategoryGroup categories={task.categories} />
     </Card>
   );
 }
