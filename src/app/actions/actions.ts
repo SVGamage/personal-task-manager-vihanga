@@ -238,7 +238,23 @@ export const createNewCategory = async (formData: CreateCategoryFormValues) => {
 
 export const getAllTasks = async () => {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
     const tasks = await prisma.task.findMany({
+      where: {
+        userId: user.id,
+      },
       select: {
         id: true,
         title: true,
