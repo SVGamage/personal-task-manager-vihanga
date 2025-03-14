@@ -6,16 +6,16 @@ import { createUser } from "@/app/actions/actions";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const SIGNIN_SECRET = process.env.SIGNING_SECRET;
+  const SIGNING_SECRET = process.env.SIGNING_SECRET;
 
-  if (!SIGNIN_SECRET) {
+  if (!SIGNING_SECRET) {
     throw new Error(
       "Error: Please add SIGNING_SECRET from Clerk Dashboard to .env or .env"
     );
   }
 
   // Create new Svix instance with secret
-  const wh = new Webhook(SIGNIN_SECRET);
+  const wh = new Webhook(SIGNING_SECRET);
 
   // Get headers
   const headerPayload = await headers();
