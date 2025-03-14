@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkProvider, SignedIn } from "@clerk/nextjs";
 import Header from "@/components/header";
 import { Card } from "@/components/ui/card";
 import SideBar from "@/components/sidebar";
@@ -31,13 +31,15 @@ export default function RootLayout({
               <Header />
               <main className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
-                  <div className="hidden md:col-span-2 md:block">
-                    <div className="sticky top-[5.5rem]">
-                      <Card className="p-4">
-                        <SideBar />
-                      </Card>
+                  <SignedIn>
+                    <div className="hidden md:col-span-2 md:block">
+                      <div className="sticky top-[5.5rem]">
+                        <Card className="p-4">
+                          <SideBar />
+                        </Card>
+                      </div>
                     </div>
-                  </div>
+                  </SignedIn>
                   {children}
                 </div>
               </main>

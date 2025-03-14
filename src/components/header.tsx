@@ -1,6 +1,7 @@
 import { ListTodo } from "lucide-react";
 import MobileSidebar from "./mobile-sidebar";
 import { ThemeToggle } from "./theme-toggle";
+import { SignedIn, UserButton } from "@clerk/nextjs";
 
 export default function Header() {
   return (
@@ -14,6 +15,9 @@ export default function Header() {
           <div className="flex items-center gap-2">
             <MobileSidebar />
             <ThemeToggle />
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
           </div>
         </div>
       </div>
