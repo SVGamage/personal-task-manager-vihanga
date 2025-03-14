@@ -1,6 +1,6 @@
 import { getAllTasks, getTasksByCategory } from "@/app/actions/actions";
 import AddTaskModal from "@/components/add-task-modal";
-import TaskCardList from "@/components/task-card-list";
+import CategoryTaskCardList from "@/components/category-task-card-list";
 
 export default async function Category({
   params,
@@ -25,7 +25,7 @@ export default async function Category({
       </div>
 
       {/* Task Cards */}
-      <TaskCardList tasks={tasksForCategory} />
+      <CategoryTaskCardList tasks={tasksForCategory} />
     </div>
   );
 }
