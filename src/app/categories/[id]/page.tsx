@@ -14,7 +14,6 @@ export default async function Category({
   const tasks = await getAllTasks();
   const tasksForCategory = await getTasksByCategory({
     categoryId,
-    userId: "67d15352c065781b4e6bf32d",
   });
   return (
     <div className="md:col-span-9">

@@ -13,7 +13,6 @@ export default async function Tasks({
   const status = searchParams.status;
   const sort = searchParams.sort;
   const tasks: TaskWithCategory[] = await getAllTasksWithCategoryNames({
-    userId: "67d15352c065781b4e6bf32d",
     status,
     sort,
   });

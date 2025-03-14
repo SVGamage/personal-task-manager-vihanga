@@ -10,119 +10,122 @@ import {
 } from "../types";
 import { CreateCategoryFormValues } from "@/components/new-category-modal";
 import { revalidatePath } from "next/cache";
+import { auth } from "@clerk/nextjs/server";
 
 interface GetTasksParams {
-  userId: string;
   status?: Status;
   sort?: SortField;
   skip?: number;
   take?: number;
 }
 export const getAllTasksWithCategoryNames = async ({
-  userId,
   status,
   sort,
   skip = 0,
-  take = 10,
+  take = 20,
 }: GetTasksParams) => {
-  const pipeline = [
-    {
-      $match: {
-        userId: { $oid: userId },
-        ...(status ? { status } : {}),
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+    const pipeline = [
+      {
+        $match: {
+          userId: { $oid: userId },
+          ...(status ? { status } : {}),
+        },
       },
-    },
-    {
-      $lookup: {
-        from: "TaskCategory",
-        localField: "_id",
-        foreignField: "taskId",
-        as: "taskCategories",
+      {
+        $lookup: {
+          from: "TaskCategory",
+          localField: "_id",
+          foreignField: "taskId",
+          as: "taskCategories",
+        },
       },
-    },
-    {
-      $lookup: {
-        from: "Category",
-        let: { categoryIds: "$taskCategories.categoryId" },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $in: ["$_id", "$$categoryIds"] },
+      {
+        $lookup: {
+          from: "Category",
+          let: { categoryIds: "$taskCategories.categoryId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $in: ["$_id", "$$categoryIds"] },
+              },
             },
-          },
-          {
-            $project: {
-              name: 1,
+            {
+              $project: {
+                name: 1,
+              },
             },
-          },
-        ],
-        as: "categories",
+          ],
+          as: "categories",
+        },
       },
-    },
-    ...(sort === "priority"
-      ? [
-          {
-            $project: {
-              title: 1,
-              description: 1,
-              dueDate: 1,
-              priority: 1,
-              status: 1,
-              createdAt: 1,
-              taskCategories: 1,
-              categories: 1,
-              priorityOrder: {
-                $switch: {
-                  branches: [
-                    { case: { $eq: ["$priority", "HIGH"] }, then: 3 },
-                    { case: { $eq: ["$priority", "MEDIUM"] }, then: 2 },
-                    { case: { $eq: ["$priority", "LOW"] }, then: 1 },
-                  ],
-                  default: 0,
+      ...(sort === "priority"
+        ? [
+            {
+              $project: {
+                title: 1,
+                description: 1,
+                dueDate: 1,
+                priority: 1,
+                status: 1,
+                createdAt: 1,
+                taskCategories: 1,
+                categories: 1,
+                priorityOrder: {
+                  $switch: {
+                    branches: [
+                      { case: { $eq: ["$priority", "HIGH"] }, then: 3 },
+                      { case: { $eq: ["$priority", "MEDIUM"] }, then: 2 },
+                      { case: { $eq: ["$priority", "LOW"] }, then: 1 },
+                    ],
+                    default: 0,
+                  },
                 },
               },
             },
-          },
-        ]
-      : []),
-    ...(sort
-      ? [
-          {
-            $sort:
-              sort === "priority"
-                ? { priorityOrder: -1 }
-                : sort === "dueDate"
-                ? { dueDate: 1 }
-                : { createdAt: -1 },
-          },
-        ]
-      : []),
-    {
-      $skip: skip,
-    },
-    {
-      $limit: take,
-    },
-    {
-      $project: {
-        id: { $toString: "$_id" },
-        title: 1,
-        description: 1,
-        dueDate: { $toString: "$dueDate" },
-        priority: 1,
-        status: 1,
-        createdAt: { $toString: "$createdAt" },
-        categories: {
-          $cond: {
-            if: { $eq: [{ $size: "$categories" }, 0] },
-            then: [],
-            else: "$categories.name",
+          ]
+        : []),
+      ...(sort
+        ? [
+            {
+              $sort:
+                sort === "priority"
+                  ? { priorityOrder: -1 }
+                  : sort === "dueDate"
+                  ? { dueDate: 1 }
+                  : { createdAt: -1 },
+            },
+          ]
+        : []),
+      {
+        $skip: skip,
+      },
+      {
+        $limit: take,
+      },
+      {
+        $project: {
+          id: { $toString: "$_id" },
+          title: 1,
+          description: 1,
+          dueDate: { $toString: "$dueDate" },
+          priority: 1,
+          status: 1,
+          createdAt: { $toString: "$createdAt" },
+          categories: {
+            $cond: {
+              if: { $eq: [{ $size: "$categories" }, 0] },
+              then: [],
+              else: "$categories.name",
+            },
           },
         },
       },
-    },
-  ];
-  try {
+    ];
     const tasks = await prisma.task.aggregateRaw({ pipeline });
     return tasks as unknown as TaskWithCategory[];
   } catch (err) {
@@ -133,10 +136,22 @@ export const getAllTasksWithCategoryNames = async ({
 
 export const createNewTask = async (formData: createTask) => {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
     const result = await prisma.$transaction(async (tx) => {
       const task = await tx.task.create({
         data: {
-          userId: "67d15352c065781b4e6bf32d",
+          userId: user.id,
           title: formData.title,
           description: formData.description,
           dueDate: formData.dueDate,
@@ -166,6 +181,10 @@ export const createNewTask = async (formData: createTask) => {
 
 export const getAllCategories = async () => {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
     const categories: CategoryWithTaskCount[] = await prisma.category.findMany({
       include: {
         _count: {
@@ -182,9 +201,21 @@ export const getAllCategories = async () => {
 
 export const createNewCategory = async (formData: CreateCategoryFormValues) => {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
     const category = await prisma.category.create({
       data: {
-        userId: "67d15352c065781b4e6bf32d",
+        userId: user.id,
         name: formData.name,
         description: formData.description,
       },
@@ -217,6 +248,10 @@ export const createTaskCategories = async (
   categoryId: string
 ) => {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
     const taskCategories = taskIds.map((taskId) => {
       return {
         taskId,
@@ -236,6 +271,10 @@ export const createTaskCategories = async (
 
 export const getAllTaskLogs = async () => {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
     const taskLogs = await prisma.taskLog.findMany({
       include: {
         task: {
@@ -257,86 +296,97 @@ export const getAllTaskLogs = async () => {
 
 export const getTasksByCategory = async ({
   categoryId,
-  userId,
 }: {
   categoryId: string;
-  userId: string;
 }): Promise<TaskWithCategory[]> => {
-  const pipeline = [
-    {
-      $match: {
-        categoryId: { $oid: categoryId },
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
       },
-    },
-    {
-      $lookup: {
-        from: "Task",
-        let: { taskId: "$taskId" },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $eq: ["$_id", "$$taskId"] },
-              userId: { $oid: userId },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const pipeline = [
+      {
+        $match: {
+          categoryId: { $oid: categoryId },
+        },
+      },
+      {
+        $lookup: {
+          from: "Task",
+          let: { taskId: "$taskId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$_id", "$$taskId"] },
+                userId: { $oid: user.id },
+              },
             },
-          },
-        ],
-        as: "task",
+          ],
+          as: "task",
+        },
       },
-    },
-    {
-      $unwind: {
-        path: "$task",
-        preserveNullAndEmptyArrays: false,
+      {
+        $unwind: {
+          path: "$task",
+          preserveNullAndEmptyArrays: false,
+        },
       },
-    },
-    {
-      $lookup: {
-        from: "TaskCategory",
-        localField: "task._id",
-        foreignField: "taskId",
-        as: "taskCategories",
+      {
+        $lookup: {
+          from: "TaskCategory",
+          localField: "task._id",
+          foreignField: "taskId",
+          as: "taskCategories",
+        },
       },
-    },
-    {
-      $lookup: {
-        from: "Category",
-        let: { categoryIds: "$taskCategories.categoryId" },
-        pipeline: [
-          {
-            $match: {
-              $expr: { $in: ["$_id", "$$categoryIds"] },
+      {
+        $lookup: {
+          from: "Category",
+          let: { categoryIds: "$taskCategories.categoryId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $in: ["$_id", "$$categoryIds"] },
+              },
             },
-          },
-          {
-            $project: {
-              name: 1,
+            {
+              $project: {
+                name: 1,
+              },
             },
-          },
-        ],
-        as: "categories",
+          ],
+          as: "categories",
+        },
       },
-    },
-    {
-      $project: {
-        id: { $toString: "$task._id" },
-        title: "$task.title",
-        description: "$task.description",
-        dueDate: { $toString: "$task.dueDate" },
-        priority: "$task.priority",
-        status: "$task.status",
-        createdAt: { $toString: "$task.createdAt" },
-        categories: {
-          $cond: {
-            if: { $eq: [{ $size: "$categories" }, 0] },
-            then: [],
-            else: "$categories.name",
+      {
+        $project: {
+          id: { $toString: "$task._id" },
+          title: "$task.title",
+          description: "$task.description",
+          dueDate: { $toString: "$task.dueDate" },
+          priority: "$task.priority",
+          status: "$task.status",
+          createdAt: { $toString: "$task.createdAt" },
+          categories: {
+            $cond: {
+              if: { $eq: [{ $size: "$categories" }, 0] },
+              then: [],
+              else: "$categories.name",
+            },
           },
         },
       },
-    },
-  ];
+    ];
 
-  try {
     const tasks = await prisma.taskCategory.aggregateRaw({ pipeline });
     return tasks as unknown as TaskWithCategory[];
   } catch (err) {
