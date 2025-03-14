@@ -69,16 +69,15 @@ export default function NewTaskModal() {
   });
   async function onSubmit(values: createTask) {
     try {
-      const newTask = await createNewTask(values);
-      toast("Task created successfully", {
-        type: "success",
+      await createNewTask(values);
+      toast.success("Task created successfully", {
         position: "top-right",
       });
       setOpen(false);
       form.reset();
     } catch (err) {
-      toast("Failed to create task", {
-        type: "error",
+      console.error(err);
+      toast.error("Failed to create task", {
         position: "top-right",
       });
     }

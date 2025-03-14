@@ -1,8 +1,8 @@
 "use server";
 
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "../../../../../lib/prisma";
-import { updateTaskSchema } from "../../../../../lib/validation/task";
+import prisma from "../../../../lib/prisma";
+import { updateTaskSchema } from "@/lib/validation/task";
 
 //getTaskById
 export async function GET(

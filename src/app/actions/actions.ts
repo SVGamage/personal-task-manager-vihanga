@@ -1,7 +1,7 @@
 "use server";
 
 import { createTask } from "@/components/new-task-modal";
-import prisma from "../../../lib/prisma";
+import prisma from "../../lib/prisma";
 import {
   CategoryWithTaskCount,
   SortField,
@@ -9,6 +9,7 @@ import {
   TaskWithCategory,
 } from "../types";
 import { CreateCategoryFormValues } from "@/components/new-category-modal";
+import { revalidatePath } from "next/cache";
 
 interface GetTasksParams {
   userId: string;
@@ -144,7 +145,7 @@ export const createNewTask = async (formData: createTask) => {
         },
       });
 
-      const taskLog = await tx.taskLog.create({
+      await tx.taskLog.create({
         data: {
           taskId: task.id,
           title: "Task Created",
@@ -154,6 +155,8 @@ export const createNewTask = async (formData: createTask) => {
 
       return task;
     });
+    revalidatePath("/");
+    revalidatePath("/logs");
     return result;
   } catch (err) {
     console.error(err);
@@ -186,6 +189,7 @@ export const createNewCategory = async (formData: CreateCategoryFormValues) => {
         description: formData.description,
       },
     });
+    revalidatePath("/categories");
     return category;
   } catch (err) {
     console.error(err);
@@ -222,6 +226,7 @@ export const createTaskCategories = async (
     const newTaskCategories = await prisma.taskCategory.createMany({
       data: taskCategories,
     });
+    revalidatePath(`/categories/${categoryId}`);
     return newTaskCategories;
   } catch (err) {
     console.error(err);
@@ -244,6 +249,96 @@ export const getAllTaskLogs = async () => {
       },
     });
     return taskLogs;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+};
+
+export const getTasksByCategory = async ({
+  categoryId,
+  userId,
+}: {
+  categoryId: string;
+  userId: string;
+}): Promise<TaskWithCategory[]> => {
+  const pipeline = [
+    {
+      $match: {
+        categoryId: { $oid: categoryId },
+      },
+    },
+    {
+      $lookup: {
+        from: "Task",
+        let: { taskId: "$taskId" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$_id", "$$taskId"] },
+              userId: { $oid: userId },
+            },
+          },
+        ],
+        as: "task",
+      },
+    },
+    {
+      $unwind: {
+        path: "$task",
+        preserveNullAndEmptyArrays: false,
+      },
+    },
+    {
+      $lookup: {
+        from: "TaskCategory",
+        localField: "task._id",
+        foreignField: "taskId",
+        as: "taskCategories",
+      },
+    },
+    {
+      $lookup: {
+        from: "Category",
+        let: { categoryIds: "$taskCategories.categoryId" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $in: ["$_id", "$$categoryIds"] },
+            },
+          },
+          {
+            $project: {
+              name: 1,
+            },
+          },
+        ],
+        as: "categories",
+      },
+    },
+    {
+      $project: {
+        id: { $toString: "$task._id" },
+        title: "$task.title",
+        description: "$task.description",
+        dueDate: { $toString: "$task.dueDate" },
+        priority: "$task.priority",
+        status: "$task.status",
+        createdAt: { $toString: "$task.createdAt" },
+        categories: {
+          $cond: {
+            if: { $eq: [{ $size: "$categories" }, 0] },
+            then: [],
+            else: "$categories.name",
+          },
+        },
+      },
+    },
+  ];
+
+  try {
+    const tasks = await prisma.taskCategory.aggregateRaw({ pipeline });
+    return tasks as unknown as TaskWithCategory[];
   } catch (err) {
     console.error(err);
     return [];

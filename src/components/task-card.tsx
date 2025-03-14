@@ -1,7 +1,6 @@
 "use client";
 import {
   formatDateToReadable,
-  priorityColor,
   priorityMap,
   statusMap,
 } from "@/lib/utils";

@@ -41,6 +41,7 @@ export function MultiSelectDropdown({
   emptyMessage = "No options found.",
   className,
   disabled = false,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ...props
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false);

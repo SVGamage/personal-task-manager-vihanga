@@ -44,12 +44,8 @@ export default function AddTaskModal({ categoryId, tasks }: AddTaskModalProps) {
     e.preventDefault();
 
     try {
-      const newTaskCategories = await createTaskCategories(
-        formData.tasks,
-        categoryId
-      );
-      toast("Tasks added to the category successfully!", {
-        type: "success",
+      await createTaskCategories(formData.tasks, categoryId);
+      toast.success("Tasks added to the category successfully!", {
         position: "top-right",
       });
       setOpen(false);
@@ -57,8 +53,8 @@ export default function AddTaskModal({ categoryId, tasks }: AddTaskModalProps) {
         tasks: [],
       });
     } catch (err) {
-      toast("Failed to add tasks to the category!", {
-        type: "error",
+      console.error(err);
+      toast.error("Failed to add tasks to the category!", {
         position: "top-right",
       });
     }

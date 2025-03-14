@@ -2,8 +2,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { Priority, Status } from "@prisma/client";
-import prisma from "../../../../lib/prisma";
-import { createTaskSchema } from "../../../../lib/validation/task";
+import prisma from "../../../lib/prisma";
+import { createTaskSchema } from "@/lib/validation/task";
 
 //createTask
 export async function POST(request: NextRequest) {

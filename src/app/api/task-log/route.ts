@@ -1,8 +1,8 @@
 "use server";
 
 import { NextRequest, NextResponse } from "next/server";
-import { createTaskLogSchema } from "../../../../lib/validation/task-log";
-import prisma from "../../../../lib/prisma";
+import { createTaskLogSchema } from "@/lib/validation/task-log";
+import prisma from "../../../lib/prisma";
 
 export async function GET() {
   try {

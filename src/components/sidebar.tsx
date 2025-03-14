@@ -9,7 +9,7 @@ export default function SideBar() {
   const pathname = usePathname();
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <Link href="/">
         <Button
           variant={pathname === "/" ? "default" : "ghost"}
