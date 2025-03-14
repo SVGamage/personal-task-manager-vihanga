@@ -1,4 +1,5 @@
 "use client";
+import { Priority, Status } from "@/app/types";
 import {
   Select,
   SelectContent,
@@ -12,7 +13,7 @@ interface SelectMenuProps {
   defaultValue: string;
   placeholder: string;
   selectGroup: { value: string; label: string }[];
-  onValueChange: (value: string) => void;
+  onValueChange: (value: Status | Priority) => void;
   className?: string;
 }
 export default function SelectMenu({

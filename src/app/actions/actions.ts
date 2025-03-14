@@ -4,6 +4,7 @@ import { createTask } from "@/components/new-task-modal";
 import prisma from "../../lib/prisma";
 import {
   CategoryWithTaskCount,
+  Priority,
   SortField,
   Status,
   TaskWithCategory,
@@ -336,6 +337,7 @@ export const getAllTaskLogs = async () => {
         createdAt: "desc",
       },
     });
+    console.log(taskLogs);
     return taskLogs;
   } catch (err) {
     console.error(err);
@@ -494,6 +496,104 @@ export const updateTask = async (
           taskId: task.id,
           title: "Task Updated",
           action: "UPDATED",
+        },
+      });
+
+      return task;
+    });
+    revalidatePath("/tasks");
+    revalidatePath("/logs");
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
+
+export const updateStatusOrPriority = async (
+  taskId: string,
+  valueType: "Status" | "Priority",
+  value: Status | Priority
+) => {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const result = await prisma.$transaction(async (tx) => {
+      const task = await tx.task.update({
+        where: {
+          userId: user.id,
+          id: taskId,
+        },
+        data: {
+          [valueType.toLowerCase()]: value,
+        },
+      });
+
+      await tx.taskLog.create({
+        data: {
+          taskId: task.id,
+          title: `Task ${valueType} Updated`,
+          action: "UPDATED",
+        },
+      });
+
+      return task;
+    });
+    revalidatePath("/tasks");
+    revalidatePath("/logs");
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
+
+export const deleteTask = async (taskId: string) => {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.taskCategory.deleteMany({
+        where: {
+          taskId,
+        },
+      });
+      await tx.taskLog.deleteMany({
+        where: {
+          taskId,
+        },
+      });
+      const task = await tx.task.delete({
+        where: {
+          userId: user.id,
+          id: taskId,
+        },
+      });
+      await tx.taskLog.create({
+        data: {
+          taskId: task.id,
+          title: `${task.title} task deleted`,
+          action: "DELETED",
         },
       });
 

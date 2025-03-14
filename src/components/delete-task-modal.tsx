@@ -16,6 +16,7 @@ import { TaskWithCategory } from "@/app/types";
 import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { deleteTask } from "@/app/actions/actions";
 
 interface DeleteTaskModalProps {
   task: TaskWithCategory;
@@ -24,12 +25,19 @@ interface DeleteTaskModalProps {
 export default function DeleteTaskModal({ task }: DeleteTaskModalProps) {
   const [open, setOpen] = React.useState(false);
 
-  const handleDelete = () => {
-    console.log("Deleting task", task.id);
-    setOpen(false);
-    toast.success(`Task "${task.title}" has been deleted`, {
-      position: "top-right",
-    });
+  const handleDelete = async () => {
+    try {
+      await deleteTask(task.id);
+      toast.success(`Task "${task.title}" has been deleted`, {
+        position: "top-right",
+      });
+      setOpen(false);
+    } catch (err) {
+      console.error(err);
+      toast.error(`Failed to delete task "${task.title}"`, {
+        position: "top-right",
+      });
+    }
   };
 
   return (

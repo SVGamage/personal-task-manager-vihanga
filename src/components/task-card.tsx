@@ -2,12 +2,14 @@
 import { formatDateToReadable, priorityMap, statusMap } from "@/lib/utils";
 import { Card } from "./ui/card";
 import { CalendarDays, Clock4 } from "lucide-react";
-import { TaskWithCategory } from "@/app/types";
+import { Priority, Status, TaskWithCategory } from "@/app/types";
 
 import UpdateTaskModal from "./update-task-modal";
 import CategoryGroup from "./category-group";
 import SelectMenu from "./select-menu";
 import DeleteTaskModal from "./delete-task-modal";
+import { updateStatusOrPriority } from "@/app/actions/actions";
+import { toast } from "sonner";
 
 interface TaskCardProps {
   task: TaskWithCategory;
@@ -25,6 +27,24 @@ const selectPriorityGroup = [
   { value: "HIGH", label: "High" },
 ];
 export default function TaskCard({ task }: TaskCardProps) {
+  async function OnValueChange(value: Status | Priority) {
+    const valueType = value in Status ? "Status" : "Priority";
+    try {
+      await updateStatusOrPriority(
+        task.id,
+        valueType,
+        value as Status | Priority
+      );
+      toast.success(`${valueType} updated successfully`, {
+        position: "top-right",
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error(`Failed to update ${valueType.toLowerCase()}`, {
+        position: "top-right",
+      });
+    }
+  }
   return (
     <Card className="p-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -50,18 +70,14 @@ export default function TaskCard({ task }: TaskCardProps) {
             defaultValue={task.priority}
             placeholder={priorityMap(task.priority)}
             selectGroup={selectPriorityGroup}
-            onValueChange={(value) => {
-              console.log(value);
-            }}
+            onValueChange={OnValueChange}
             className="w-[100px] font-semibold"
           />
           <SelectMenu
             defaultValue={task.status}
             placeholder={statusMap(task.status)}
             selectGroup={selectStatusGroup}
-            onValueChange={(value) => {
-              console.log(value);
-            }}
+            onValueChange={OnValueChange}
             className="w-[100px] font-semibold"
           />
           <div className="flex gap-2">
