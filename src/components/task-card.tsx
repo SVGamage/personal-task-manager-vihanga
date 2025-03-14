@@ -8,7 +8,7 @@ import UpdateTaskModal from "./update-task-modal";
 import CategoryGroup from "./category-group";
 import SelectMenu from "./select-menu";
 import DeleteTaskModal from "./delete-task-modal";
-import { updateStatusOrPriority } from "@/app/actions/actions";
+import { deleteTask, updateStatusOrPriority } from "@/app/actions/actions";
 import { toast } from "sonner";
 
 interface TaskCardProps {
@@ -45,6 +45,19 @@ export default function TaskCard({ task }: TaskCardProps) {
       });
     }
   }
+  const handleDelete = async () => {
+    try {
+      await deleteTask(task.id);
+      toast.success(`Task "${task.title}" has been deleted`, {
+        position: "top-right",
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error(`Failed to delete task "${task.title}"`, {
+        position: "top-right",
+      });
+    }
+  };
   return (
     <Card className="p-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -82,7 +95,7 @@ export default function TaskCard({ task }: TaskCardProps) {
           />
           <div className="flex gap-2">
             <UpdateTaskModal task={task} />
-            <DeleteTaskModal task={task} />
+            <DeleteTaskModal handleDelete={handleDelete} task={task} />
           </div>
         </div>
       </div>

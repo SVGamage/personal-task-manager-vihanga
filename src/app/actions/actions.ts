@@ -606,3 +606,35 @@ export const deleteTask = async (taskId: string) => {
     return err;
   }
 };
+
+export const deleteTaskCategory = async (
+  taskId: string,
+  categoryId: string
+) => {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const result = await prisma.taskCategory.deleteMany({
+      where: {
+        taskId,
+        categoryId,
+      },
+    });
+    revalidatePath("/tasks");
+    revalidatePath(`/categories/${categoryId}`);
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};

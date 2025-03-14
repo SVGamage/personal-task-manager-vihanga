@@ -15,30 +15,18 @@ import {
 import { TaskWithCategory } from "@/app/types";
 import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { deleteTask } from "@/app/actions/actions";
+
 
 interface DeleteTaskModalProps {
   task: TaskWithCategory;
+  handleDelete: () => Promise<void>;
 }
 
-export default function DeleteTaskModal({ task }: DeleteTaskModalProps) {
+export default function DeleteTaskModal({
+  task,
+  handleDelete,
+}: DeleteTaskModalProps) {
   const [open, setOpen] = React.useState(false);
-
-  const handleDelete = async () => {
-    try {
-      await deleteTask(task.id);
-      toast.success(`Task "${task.title}" has been deleted`, {
-        position: "top-right",
-      });
-      setOpen(false);
-    } catch (err) {
-      console.error(err);
-      toast.error(`Failed to delete task "${task.title}"`, {
-        position: "top-right",
-      });
-    }
-  };
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -60,7 +48,10 @@ export default function DeleteTaskModal({ task }: DeleteTaskModalProps) {
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={handleDelete}
+            onClick={async () => {
+              await handleDelete();
+              setOpen(false);
+            }}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             Delete
