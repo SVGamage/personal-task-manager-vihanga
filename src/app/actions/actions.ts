@@ -4,6 +4,7 @@ import { createTask } from "@/components/new-task-modal";
 import prisma from "../../lib/prisma";
 import {
   CategoryWithTaskCount,
+  Priority,
   SortField,
   Status,
   TaskWithCategory,
@@ -11,6 +12,7 @@ import {
 import { CreateCategoryFormValues } from "@/components/new-category-modal";
 import { revalidatePath } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
+import { UpdateTaskFormValues } from "@/components/update-task-modal";
 
 interface GetTasksParams {
   status?: Status;
@@ -178,7 +180,7 @@ export const createNewTask = async (formData: createTask) => {
 
       return task;
     });
-    revalidatePath("/");
+    revalidatePath("/tasks");
     revalidatePath("/logs");
     return result;
   } catch (err) {
@@ -193,7 +195,18 @@ export const getAllCategories = async () => {
     if (!userId) {
       throw new Error("You must be signed in");
     }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
     const categories: CategoryWithTaskCount[] = await prisma.category.findMany({
+      where: {
+        userId: user.id,
+      },
       include: {
         _count: {
           select: { TaskCategory: true },
@@ -238,7 +251,23 @@ export const createNewCategory = async (formData: CreateCategoryFormValues) => {
 
 export const getAllTasks = async () => {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
     const tasks = await prisma.task.findMany({
+      where: {
+        userId: user.id,
+      },
       select: {
         id: true,
         title: true,
@@ -283,7 +312,20 @@ export const getAllTaskLogs = async () => {
     if (!userId) {
       throw new Error("You must be signed in");
     }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
     const taskLogs = await prisma.taskLog.findMany({
+      where: {
+        task: {
+          userId: user.id,
+        },
+      },
       include: {
         task: {
           select: {
@@ -413,5 +455,186 @@ export const createUser = async (clerkUserId: string) => {
     return user;
   } catch (err) {
     console.error(err);
+  }
+};
+
+export const updateTask = async (
+  taskId: string,
+  formValues: UpdateTaskFormValues
+) => {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const result = await prisma.$transaction(async (tx) => {
+      const task = await tx.task.update({
+        where: {
+          userId: user.id,
+          id: taskId,
+        },
+        data: {
+          title: formValues.title,
+          description: formValues.description,
+          dueDate: formValues.dueDate,
+          priority: formValues.priority,
+          status: formValues.status,
+        },
+      });
+
+      await tx.taskLog.create({
+        data: {
+          taskId: task.id,
+          title: "Task Updated",
+          action: "UPDATED",
+        },
+      });
+
+      return task;
+    });
+    revalidatePath("/tasks");
+    revalidatePath("/logs");
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
+
+export const updateStatusOrPriority = async (
+  taskId: string,
+  valueType: "Status" | "Priority",
+  value: Status | Priority
+) => {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const result = await prisma.$transaction(async (tx) => {
+      const task = await tx.task.update({
+        where: {
+          userId: user.id,
+          id: taskId,
+        },
+        data: {
+          [valueType.toLowerCase()]: value,
+        },
+      });
+
+      await tx.taskLog.create({
+        data: {
+          taskId: task.id,
+          title: `Task ${valueType} Updated`,
+          action: "UPDATED",
+        },
+      });
+
+      return task;
+    });
+    revalidatePath("/tasks");
+    revalidatePath("/logs");
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
+
+export const deleteTask = async (taskId: string) => {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.taskCategory.deleteMany({
+        where: {
+          taskId,
+        },
+      });
+      await tx.taskLog.deleteMany({
+        where: {
+          taskId,
+        },
+      });
+      const task = await tx.task.delete({
+        where: {
+          userId: user.id,
+          id: taskId,
+        },
+      });
+      await tx.taskLog.create({
+        data: {
+          taskId: task.id,
+          title: `${task.title} task deleted`,
+          action: "DELETED",
+        },
+      });
+
+      return task;
+    });
+    revalidatePath("/tasks");
+    revalidatePath("/logs");
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
+
+export const deleteTaskCategory = async (
+  taskId: string,
+  categoryId: string
+) => {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("You must be signed in");
+    }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const result = await prisma.taskCategory.deleteMany({
+      where: {
+        taskId,
+        categoryId,
+      },
+    });
+    revalidatePath("/tasks");
+    revalidatePath(`/categories/${categoryId}`);
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
   }
 };
