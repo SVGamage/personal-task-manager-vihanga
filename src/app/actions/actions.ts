@@ -193,7 +193,18 @@ export const getAllCategories = async () => {
     if (!userId) {
       throw new Error("You must be signed in");
     }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
     const categories: CategoryWithTaskCount[] = await prisma.category.findMany({
+      where: {
+        userId: user.id,
+      },
       include: {
         _count: {
           select: { TaskCategory: true },
@@ -299,7 +310,20 @@ export const getAllTaskLogs = async () => {
     if (!userId) {
       throw new Error("You must be signed in");
     }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
     const taskLogs = await prisma.taskLog.findMany({
+      where: {
+        task: {
+          userId: user.id,
+        },
+      },
       include: {
         task: {
           select: {
