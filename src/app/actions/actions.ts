@@ -29,10 +29,18 @@ export const getAllTasksWithCategoryNames = async ({
     if (!userId) {
       throw new Error("You must be signed in");
     }
+    const user = await prisma.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
     const pipeline = [
       {
         $match: {
-          userId: { $oid: userId },
+          userId: { $oid: user.id },
           ...(status ? { status } : {}),
         },
       },
