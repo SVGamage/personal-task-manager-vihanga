@@ -337,7 +337,6 @@ export const getAllTaskLogs = async () => {
         createdAt: "desc",
       },
     });
-    console.log(taskLogs);
     return taskLogs;
   } catch (err) {
     console.error(err);
