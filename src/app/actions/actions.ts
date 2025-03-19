@@ -321,7 +321,6 @@ export const createUser = async (clerkUserId: string) => {
     return user;
   } catch (err) {
     console.error(err);
-    return err;
   }
 };
 
