@@ -12,7 +12,7 @@ import {
 import { CreateCategoryFormValues } from "@/components/new-category-modal";
 import { revalidatePath } from "next/cache";
 import { UpdateTaskFormValues } from "@/components/update-task-modal";
-import { authenticateAndGetUser } from "@/services/auth-services";
+import { authenticateAndGetUser } from "@/services/auth-service";
 
 export const getAllTasksWithCategoryNames = async ({
   status,
