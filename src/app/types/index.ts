@@ -14,6 +14,12 @@ export enum Priority {
 }
 export type Actions = "CREATED" | "UPDATED" | "DELETED";
 
+export interface GetTasksParams {
+  status?: Status;
+  sort?: SortField;
+  skip?: number;
+  take?: number;
+}
 export interface Task {
   id: string;
   title: string;
