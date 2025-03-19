@@ -127,7 +127,7 @@ export const getAllTasksWithCategoryNames = async ({
     return tasks as unknown as TaskWithCategory[];
   } catch (err) {
     console.error(err);
-    return err;
+    return [];
   }
 };
 
@@ -160,7 +160,7 @@ export const getAllCategories = async () => {
     return categories;
   } catch (err) {
     console.error(err);
-    return err;
+    return [];
   }
 };
 
@@ -188,7 +188,7 @@ export const getAllTasks = async () => {
     return tasks;
   } catch (err) {
     console.error(err);
-    return err;
+    return [];
   }
 };
 
@@ -222,7 +222,7 @@ export const getAllTaskLogs = async () => {
     return taskLogs;
   } catch (err) {
     console.error(err);
-    return err;
+    return [];
   }
 };
 
@@ -311,7 +311,7 @@ export const getTasksByCategory = async ({
     return tasks as unknown as TaskWithCategory[];
   } catch (err) {
     console.error(err);
-    return err;
+    return [];
   }
 };
 
