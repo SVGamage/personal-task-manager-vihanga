@@ -1,7 +1,6 @@
 "use server";
 
 import { createTask } from "@/components/new-task-modal";
-import prisma from "../../lib/prisma";
 import {
   CategoryWithTaskCount,
   GetTasksParams,
@@ -13,6 +12,11 @@ import { CreateCategoryFormValues } from "@/components/new-category-modal";
 import { revalidatePath } from "next/cache";
 import { UpdateTaskFormValues } from "@/components/update-task-modal";
 import { authenticateAndGetUser } from "@/services/auth-service";
+import TaskService from "@/services/task-service";
+import CategoryService from "@/services/category-service";
+import TaskCategoryService from "@/services/task-category-service";
+import TaskLogService from "@/services/task-log-service";
+import UserService from "@/services/user-service";
 
 export const getAllTasksWithCategoryNames = async ({
   status,
@@ -119,39 +123,26 @@ export const getAllTasksWithCategoryNames = async ({
         },
       },
     ];
-    const tasks = await prisma.task.aggregateRaw({ pipeline });
+    const tasks = await TaskService.getAllTasksWithCategory(pipeline);
     return tasks as unknown as TaskWithCategory[];
   } catch (err) {
     console.error(err);
-    return [];
+    return err;
   }
 };
 
 export const createNewTask = async (formData: createTask) => {
   try {
     const user = await authenticateAndGetUser();
-    const result = await prisma.$transaction(async (tx) => {
-      const task = await tx.task.create({
-        data: {
-          userId: user.id,
-          title: formData.title,
-          description: formData.description,
-          dueDate: formData.dueDate,
-          priority: formData.priority,
-          status: formData.status,
-        },
-      });
-
-      await tx.taskLog.create({
-        data: {
-          taskId: task.id,
-          title: "Task Created",
-          action: "CREATED",
-        },
-      });
-
-      return task;
-    });
+    const newTask = {
+      userId: user.id,
+      title: formData.title,
+      description: formData.description,
+      dueDate: formData.dueDate,
+      priority: formData.priority,
+      status: formData.status,
+    };
+    const result = await TaskService.createNewTask(newTask);
     revalidatePath("/tasks");
     revalidatePath("/logs");
     return result;
@@ -164,33 +155,24 @@ export const createNewTask = async (formData: createTask) => {
 export const getAllCategories = async () => {
   try {
     const user = await authenticateAndGetUser();
-    const categories: CategoryWithTaskCount[] = await prisma.category.findMany({
-      where: {
-        userId: user.id,
-      },
-      include: {
-        _count: {
-          select: { TaskCategory: true },
-        },
-      },
-    });
+    const categories: CategoryWithTaskCount[] =
+      await CategoryService.getAllCategories(user.id);
     return categories;
   } catch (err) {
     console.error(err);
-    return [];
+    return err;
   }
 };
 
 export const createNewCategory = async (formData: CreateCategoryFormValues) => {
   try {
     const user = await authenticateAndGetUser();
-    const category = await prisma.category.create({
-      data: {
-        userId: user.id,
-        name: formData.name,
-        description: formData.description,
-      },
-    });
+    const newCategory = {
+      userId: user.id,
+      name: formData.name,
+      description: formData.description,
+    };
+    const category = await CategoryService.createNewCategory(newCategory);
     revalidatePath("/categories");
     return category;
   } catch (err) {
@@ -202,19 +184,11 @@ export const createNewCategory = async (formData: CreateCategoryFormValues) => {
 export const getAllTasks = async () => {
   try {
     const user = await authenticateAndGetUser();
-    const tasks = await prisma.task.findMany({
-      where: {
-        userId: user.id,
-      },
-      select: {
-        id: true,
-        title: true,
-      },
-    });
+    const tasks = await TaskService.getAllTasks(user.id);
     return tasks;
   } catch (err) {
     console.error(err);
-    return [];
+    return err;
   }
 };
 
@@ -230,9 +204,9 @@ export const createTaskCategories = async (
         categoryId,
       };
     });
-    const newTaskCategories = await prisma.taskCategory.createMany({
-      data: taskCategories,
-    });
+    const newTaskCategories = await TaskCategoryService.createTaskCategories(
+      taskCategories
+    );
     revalidatePath(`/categories/${categoryId}`);
     return newTaskCategories;
   } catch (err) {
@@ -244,27 +218,11 @@ export const createTaskCategories = async (
 export const getAllTaskLogs = async () => {
   try {
     const user = await authenticateAndGetUser();
-    const taskLogs = await prisma.taskLog.findMany({
-      where: {
-        task: {
-          userId: user.id,
-        },
-      },
-      include: {
-        task: {
-          select: {
-            title: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const taskLogs = await TaskLogService.getAllTaskLogs(user.id);
     return taskLogs;
   } catch (err) {
     console.error(err);
-    return [];
+    return err;
   }
 };
 
@@ -272,7 +230,7 @@ export const getTasksByCategory = async ({
   categoryId,
 }: {
   categoryId: string;
-}): Promise<TaskWithCategory[]> => {
+}) => {
   try {
     const user = await authenticateAndGetUser();
     const pipeline = [
@@ -349,24 +307,21 @@ export const getTasksByCategory = async ({
       },
     ];
 
-    const tasks = await prisma.taskCategory.aggregateRaw({ pipeline });
+    const tasks = await TaskService.getAllTasksWithCategory(pipeline);
     return tasks as unknown as TaskWithCategory[];
   } catch (err) {
     console.error(err);
-    return [];
+    return err;
   }
 };
 
 export const createUser = async (clerkUserId: string) => {
   try {
-    const user = await prisma.user.create({
-      data: {
-        clerkUserId,
-      },
-    });
+    const user = await UserService.createUser(clerkUserId);
     return user;
   } catch (err) {
     console.error(err);
+    return err;
   }
 };
 
@@ -376,31 +331,14 @@ export const updateTask = async (
 ) => {
   try {
     const user = await authenticateAndGetUser();
-    const result = await prisma.$transaction(async (tx) => {
-      const task = await tx.task.update({
-        where: {
-          userId: user.id,
-          id: taskId,
-        },
-        data: {
-          title: formValues.title,
-          description: formValues.description,
-          dueDate: formValues.dueDate,
-          priority: formValues.priority,
-          status: formValues.status,
-        },
-      });
-
-      await tx.taskLog.create({
-        data: {
-          taskId: task.id,
-          title: "Task Updated",
-          action: "UPDATED",
-        },
-      });
-
-      return task;
-    });
+    const updatedTask = {
+      title: formValues.title,
+      description: formValues.description,
+      dueDate: formValues.dueDate,
+      priority: formValues.priority,
+      status: formValues.status,
+    };
+    const result = await TaskService.updateTask(taskId, user.id, updatedTask);
     revalidatePath("/tasks");
     revalidatePath("/logs");
     return result;
@@ -417,27 +355,12 @@ export const updateStatusOrPriority = async (
 ) => {
   try {
     const user = await authenticateAndGetUser();
-    const result = await prisma.$transaction(async (tx) => {
-      const task = await tx.task.update({
-        where: {
-          userId: user.id,
-          id: taskId,
-        },
-        data: {
-          [valueType.toLowerCase()]: value,
-        },
-      });
-
-      await tx.taskLog.create({
-        data: {
-          taskId: task.id,
-          title: `Task ${valueType} Updated`,
-          action: "UPDATED",
-        },
-      });
-
-      return task;
-    });
+    const result = await TaskService.updateStatusOrPriority(
+      taskId,
+      user.id,
+      valueType,
+      value
+    );
     revalidatePath("/tasks");
     revalidatePath("/logs");
     return result;
@@ -450,33 +373,7 @@ export const updateStatusOrPriority = async (
 export const deleteTask = async (taskId: string) => {
   try {
     const user = await authenticateAndGetUser();
-    const result = await prisma.$transaction(async (tx) => {
-      await tx.taskCategory.deleteMany({
-        where: {
-          taskId,
-        },
-      });
-      await tx.taskLog.deleteMany({
-        where: {
-          taskId,
-        },
-      });
-      const task = await tx.task.delete({
-        where: {
-          userId: user.id,
-          id: taskId,
-        },
-      });
-      await tx.taskLog.create({
-        data: {
-          taskId: task.id,
-          title: `${task.title} task deleted`,
-          action: "DELETED",
-        },
-      });
-
-      return task;
-    });
+    const result = await TaskService.deleteTask(taskId, user.id);
     revalidatePath("/tasks");
     revalidatePath("/logs");
     return result;
@@ -492,12 +389,10 @@ export const deleteTaskCategory = async (
 ) => {
   try {
     await authenticateAndGetUser();
-    const result = await prisma.taskCategory.deleteMany({
-      where: {
-        taskId,
-        categoryId,
-      },
-    });
+    const result = await TaskCategoryService.deleteTaskCategory(
+      taskId,
+      categoryId
+    );
     revalidatePath("/tasks");
     revalidatePath(`/categories/${categoryId}`);
     return result;

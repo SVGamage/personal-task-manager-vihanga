@@ -64,3 +64,5 @@ export type CategoryWithTaskCount = Category & {
 };
 
 export type SortField = "dueDate" | "priority" | "createdAt";
+
+export type createTaskCategories = { taskId: string; categoryId: string };
