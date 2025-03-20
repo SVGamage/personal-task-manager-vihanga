@@ -34,6 +34,7 @@ model User {
 
   Task     Task[]
   Category Category[]
+  TaskLog  TaskLog[]
 }
 
 model Task {
@@ -48,8 +49,8 @@ model Task {
   updatedAt   DateTime @updatedAt
 
   user         User           @relation(fields: [userId], references: [id])
-  TaskLog      TaskLog[]
   TaskCategory TaskCategory[]
+  TaskLog      TaskLog[]
 
   @@index([userId])
   @@index([dueDate])
@@ -75,16 +76,18 @@ model Category {
 
 model TaskLog {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  taskId    String   @db.ObjectId
+  userId    String   @db.ObjectId
   action    Action
   title     String?
   createdAt DateTime @default(now())
 
-  task Task @relation(fields: [taskId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
-  @@index([taskId])
+  Task   Task?   @relation(fields: [taskId], references: [id])
+  taskId String? @db.ObjectId
+
   @@index([createdAt])
-  @@index([taskId, createdAt])
+  @@index([userId])
 }
 
 model TaskCategory {

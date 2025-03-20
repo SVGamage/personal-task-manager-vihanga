@@ -143,7 +143,7 @@ export const createNewTask = async (formData: createTask) => {
       priority: formData.priority,
       status: formData.status,
     };
-    const result = await TaskService.createNewTask(newTask);
+    const result = await TaskService.createNewTask(newTask, user.id);
     revalidatePath("/tasks");
     revalidatePath("/logs");
     return result;
@@ -220,7 +220,6 @@ export const getAllTaskLogs = async () => {
   try {
     const user = await authenticateAndGetUser();
     const taskLogs = await TaskLogService.getAllTaskLogs(user.id);
-    console.log(taskLogs);
     return taskLogs;
   } catch (err) {
     console.error(err);

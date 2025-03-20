@@ -15,7 +15,6 @@ export default function LogCard({ taskLog }: LogCardProps) {
         </div>
         <div className="flex-1">
           <p className="font-semibold text-lg">{taskLog.title}</p>
-          <p className="text-sm text-muted-foreground">{taskLog.task.title}</p>
           <p className="mt-1 text-xs text-muted-foreground">
             {timeAgo(taskLog.createdAt)}
           </p>

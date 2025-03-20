@@ -41,11 +41,10 @@ export interface Category {
 
 export interface TaskLog {
   id: string;
-  taskId: string;
+  userId: string;
   action: Action;
   title: string | null;
   createdAt: Date;
-  task: { title: string };
 }
 
 export interface TaskWithCategory {

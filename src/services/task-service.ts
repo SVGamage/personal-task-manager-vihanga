@@ -19,7 +19,10 @@ export default class TaskService {
     return prisma.task.aggregateRaw({ pipeline });
   }
 
-  public static async createNewTask(newTask: Prisma.TaskCreateManyInput) {
+  public static async createNewTask(
+    newTask: Prisma.TaskCreateManyInput,
+    userId: string
+  ) {
     return prisma.$transaction(async (tx) => {
       const task = await tx.task.create({
         data: newTask,
@@ -27,8 +30,8 @@ export default class TaskService {
 
       await tx.taskLog.create({
         data: {
-          taskId: task.id,
-          title: "Task Created",
+          userId,
+          title: `Task "${task.title}" is created`,
           action: "CREATED",
         },
       });
@@ -53,8 +56,8 @@ export default class TaskService {
 
       await tx.taskLog.create({
         data: {
-          taskId: task.id,
-          title: "Task Updated",
+          userId,
+          title: `Task "${task.title}" is updated`,
           action: "UPDATED",
         },
       });
@@ -82,8 +85,8 @@ export default class TaskService {
 
       await tx.taskLog.create({
         data: {
-          taskId: task.id,
-          title: `Task ${valueType} Updated`,
+          userId,
+          title: `${valueType} of task "${task.title}" is updated`,
           action: "UPDATED",
         },
       });
@@ -99,11 +102,6 @@ export default class TaskService {
           taskId,
         },
       });
-      await tx.taskLog.deleteMany({
-        where: {
-          taskId,
-        },
-      });
       const task = await tx.task.delete({
         where: {
           userId,
@@ -112,8 +110,8 @@ export default class TaskService {
       });
       await tx.taskLog.create({
         data: {
-          taskId: task.id,
-          title: `${task.title} task deleted`,
+          userId,
+          title: `Task "${task.title}" is  deleted`,
           action: "DELETED",
         },
       });

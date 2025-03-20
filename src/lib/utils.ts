@@ -1,4 +1,4 @@
-import { Priority, Status, Actions } from "@/app/types";
+import { Priority, Status } from "@/app/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -61,24 +61,6 @@ export function priorityMap(priority: Priority) {
     HIGH: "High",
   };
   return priorityMap[priority];
-}
-
-export function priorityColor(priority: Priority) {
-  const priorityColor = {
-    LOW: "text-green-500",
-    MEDIUM: "text-yellow-500",
-    HIGH: "text-red-500",
-  };
-  return priorityColor[priority];
-}
-
-export function ActionColor(action: Actions) {
-  const actionColor = {
-    CREATED: "green",
-    UPDATED: "blue",
-    DELETED: "red",
-  };
-  return actionColor[action];
 }
 
 export function timeAgo(date: Date): string {
