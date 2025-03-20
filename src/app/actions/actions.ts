@@ -227,6 +227,17 @@ export const getAllTaskLogs = async () => {
   }
 };
 
+export const deleteTaskLog = async (taskLogId: string) => {
+  try {
+    const user = await authenticateAndGetUser();
+    const result = await TaskLogService.deleteTaskLog(taskLogId, user.id);
+    revalidatePath("/logs");
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
 export const getTasksByCategory = async ({
   categoryId,
 }: {

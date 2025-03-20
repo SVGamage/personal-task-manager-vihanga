@@ -11,4 +11,13 @@ export default class TaskLogService {
       },
     });
   }
+
+  public static async deleteTaskLog(taskLogId: string, userId: string) {
+    return prisma.taskLog.delete({
+      where: {
+        id: taskLogId,
+        userId,
+      },
+    });
+  }
 }
