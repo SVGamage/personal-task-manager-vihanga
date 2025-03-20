@@ -76,7 +76,6 @@ model Category {
 model TaskLog {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   taskId    String   @db.ObjectId
-  userId    String   @db.ObjectId
   action    Action
   title     String?
   createdAt DateTime @default(now())
@@ -84,7 +83,6 @@ model TaskLog {
   task Task @relation(fields: [taskId], references: [id])
 
   @@index([taskId])
-  @@index([userId])
   @@index([createdAt])
   @@index([taskId, createdAt])
 }
