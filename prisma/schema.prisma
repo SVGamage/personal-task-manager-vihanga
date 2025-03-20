@@ -34,7 +34,6 @@ model User {
 
   Task     Task[]
   Category Category[]
-  TaskLog  TaskLog[]
 }
 
 model Task {
@@ -83,7 +82,6 @@ model TaskLog {
   createdAt DateTime @default(now())
 
   task Task @relation(fields: [taskId], references: [id])
-  user User @relation(fields: [userId], references: [id])
 
   @@index([taskId])
   @@index([userId])
