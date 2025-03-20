@@ -22,4 +22,15 @@ export default class CategoryService {
       data: newCategory,
     });
   }
+
+  public static async updateCategory(
+    categoryId: string,
+    userId: string,
+    updatedCategory: Prisma.CategoryUpdateInput
+  ) {
+    return prisma.category.update({
+      where: { id: categoryId, userId },
+      data: updatedCategory,
+    });
+  }
 }

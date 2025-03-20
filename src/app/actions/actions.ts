@@ -17,6 +17,7 @@ import CategoryService from "@/services/category-service";
 import TaskCategoryService from "@/services/task-category-service";
 import TaskLogService from "@/services/task-log-service";
 import UserService from "@/services/user-service";
+import { UpdateCategoryFormValues } from "@/components/update-category-modal";
 
 export const getAllTasksWithCategoryNames = async ({
   status,
@@ -307,7 +308,7 @@ export const getTasksByCategory = async ({
       },
     ];
 
-    const tasks = await TaskService.getAllTasksWithCategory(pipeline);
+    const tasks = await TaskCategoryService.getTasksByCategory(pipeline);
     return tasks as unknown as TaskWithCategory[];
   } catch (err) {
     console.error(err);
@@ -347,6 +348,28 @@ export const updateTask = async (
   }
 };
 
+export const updateCategory = async (
+  categoryId: string,
+  formValues: UpdateCategoryFormValues
+) => {
+  try {
+    const user = await authenticateAndGetUser();
+    const updatedCategory = {
+      name: formValues.name,
+      description: formValues.description,
+    };
+    const result = await CategoryService.updateCategory(
+      categoryId,
+      user.id,
+      updatedCategory
+    );
+    revalidatePath("/categories");
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
 export const updateStatusOrPriority = async (
   taskId: string,
   valueType: "Status" | "Priority",
