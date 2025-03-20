@@ -143,7 +143,7 @@ export const createNewTask = async (formData: createTask) => {
       priority: formData.priority,
       status: formData.status,
     };
-    const result = await TaskService.createNewTask(newTask, user.id);
+    const result = await TaskService.createNewTask(newTask);
     revalidatePath("/tasks");
     revalidatePath("/logs");
     return result;
