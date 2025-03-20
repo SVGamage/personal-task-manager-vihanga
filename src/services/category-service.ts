@@ -33,4 +33,20 @@ export default class CategoryService {
       data: updatedCategory,
     });
   }
+
+  public static async deleteCategory(categoryId: string, userId: string) {
+    return prisma.$transaction(async (tx) => {
+      await tx.taskCategory.deleteMany({
+        where: {
+          categoryId,
+        },
+      });
+      return tx.category.delete({
+        where: {
+          id: categoryId,
+          userId,
+        },
+      });
+    });
+  }
 }

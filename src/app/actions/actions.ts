@@ -220,6 +220,7 @@ export const getAllTaskLogs = async () => {
   try {
     const user = await authenticateAndGetUser();
     const taskLogs = await TaskLogService.getAllTaskLogs(user.id);
+    console.log(taskLogs);
     return taskLogs;
   } catch (err) {
     console.error(err);
@@ -364,6 +365,19 @@ export const updateCategory = async (
       updatedCategory
     );
     revalidatePath("/categories");
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
+
+export const deleteCategory = async (categoryId: string) => {
+  try {
+    const user = await authenticateAndGetUser();
+    const result = await CategoryService.deleteCategory(categoryId, user.id);
+    revalidatePath("/categories");
+    revalidatePath("/tasks");
     return result;
   } catch (err) {
     console.error(err);
