@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import SideBar from "@/components/sidebar";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import { dark } from "@clerk/themes";
 
 export const metadata: Metadata = {
   title: "Task Master",
@@ -18,7 +19,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+        variables: {
+          colorPrimary: "#fbbd23",
+        },
+      }}
+    >
       <html lang="en">
         <body className={"antialiased"}>
           <ThemeProvider
