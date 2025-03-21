@@ -14,6 +14,12 @@ export enum Priority {
 }
 export type Actions = "CREATED" | "UPDATED" | "DELETED";
 
+export interface GetTasksParams {
+  status?: Status;
+  sort?: SortField;
+  skip?: number;
+  take?: number;
+}
 export interface Task {
   id: string;
   title: string;
@@ -35,11 +41,10 @@ export interface Category {
 
 export interface TaskLog {
   id: string;
-  taskId: string;
+  userId: string;
   action: Action;
   title: string | null;
   createdAt: Date;
-  task: { title: string };
 }
 
 export interface TaskWithCategory {
@@ -58,3 +63,5 @@ export type CategoryWithTaskCount = Category & {
 };
 
 export type SortField = "dueDate" | "priority" | "createdAt";
+
+export type createTaskCategories = { taskId: string; categoryId: string };

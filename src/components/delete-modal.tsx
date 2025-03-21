@@ -12,20 +12,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { TaskWithCategory } from "@/app/types";
 import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
 
-
-interface DeleteTaskModalProps {
-  task: TaskWithCategory;
+interface DeleteModalProps {
+  type: string;
+  name: string;
   handleDelete: () => Promise<void>;
 }
 
-export default function DeleteTaskModal({
-  task,
+export default function DeleteModal({
+  type,
+  name,
   handleDelete,
-}: DeleteTaskModalProps) {
+}: DeleteModalProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -41,8 +41,8 @@ export default function DeleteTaskModal({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            {`This action cannot be undone. This will permanently delete the task
-            ${task.title} and remove it from our servers.`}
+            {`This action cannot be undone. This will permanently delete the ${type}
+            ${name} and remove it from our servers.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

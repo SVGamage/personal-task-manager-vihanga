@@ -1,25 +1,24 @@
 "use server";
 
 import { createTask } from "@/components/new-task-modal";
-import prisma from "../../lib/prisma";
 import {
   CategoryWithTaskCount,
+  GetTasksParams,
   Priority,
-  SortField,
   Status,
   TaskWithCategory,
 } from "../types";
 import { CreateCategoryFormValues } from "@/components/new-category-modal";
 import { revalidatePath } from "next/cache";
-import { auth } from "@clerk/nextjs/server";
 import { UpdateTaskFormValues } from "@/components/update-task-modal";
+import { authenticateAndGetUser } from "@/services/auth-service";
+import TaskService from "@/services/task-service";
+import CategoryService from "@/services/category-service";
+import TaskCategoryService from "@/services/task-category-service";
+import TaskLogService from "@/services/task-log-service";
+import UserService from "@/services/user-service";
+import { UpdateCategoryFormValues } from "@/components/update-category-modal";
 
-interface GetTasksParams {
-  status?: Status;
-  sort?: SortField;
-  skip?: number;
-  take?: number;
-}
 export const getAllTasksWithCategoryNames = async ({
   status,
   sort,
@@ -27,18 +26,7 @@ export const getAllTasksWithCategoryNames = async ({
   take = 20,
 }: GetTasksParams) => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("You must be signed in");
-    }
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await authenticateAndGetUser();
     const pipeline = [
       {
         $match: {
@@ -136,7 +124,7 @@ export const getAllTasksWithCategoryNames = async ({
         },
       },
     ];
-    const tasks = await prisma.task.aggregateRaw({ pipeline });
+    const tasks = await TaskService.getAllTasksWithCategory(pipeline);
     return tasks as unknown as TaskWithCategory[];
   } catch (err) {
     console.error(err);
@@ -146,40 +134,16 @@ export const getAllTasksWithCategoryNames = async ({
 
 export const createNewTask = async (formData: createTask) => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("You must be signed in");
-    }
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!user) {
-      throw new Error("User not found");
-    }
-    const result = await prisma.$transaction(async (tx) => {
-      const task = await tx.task.create({
-        data: {
-          userId: user.id,
-          title: formData.title,
-          description: formData.description,
-          dueDate: formData.dueDate,
-          priority: formData.priority,
-          status: formData.status,
-        },
-      });
-
-      await tx.taskLog.create({
-        data: {
-          taskId: task.id,
-          title: "Task Created",
-          action: "CREATED",
-        },
-      });
-
-      return task;
-    });
+    const user = await authenticateAndGetUser();
+    const newTask = {
+      userId: user.id,
+      title: formData.title,
+      description: formData.description,
+      dueDate: formData.dueDate,
+      priority: formData.priority,
+      status: formData.status,
+    };
+    const result = await TaskService.createNewTask(newTask, user.id);
     revalidatePath("/tasks");
     revalidatePath("/logs");
     return result;
@@ -191,28 +155,9 @@ export const createNewTask = async (formData: createTask) => {
 
 export const getAllCategories = async () => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("You must be signed in");
-    }
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!user) {
-      throw new Error("User not found");
-    }
-    const categories: CategoryWithTaskCount[] = await prisma.category.findMany({
-      where: {
-        userId: user.id,
-      },
-      include: {
-        _count: {
-          select: { TaskCategory: true },
-        },
-      },
-    });
+    const user = await authenticateAndGetUser();
+    const categories: CategoryWithTaskCount[] =
+      await CategoryService.getAllCategories(user.id);
     return categories;
   } catch (err) {
     console.error(err);
@@ -222,25 +167,13 @@ export const getAllCategories = async () => {
 
 export const createNewCategory = async (formData: CreateCategoryFormValues) => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("You must be signed in");
-    }
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!user) {
-      throw new Error("User not found");
-    }
-    const category = await prisma.category.create({
-      data: {
-        userId: user.id,
-        name: formData.name,
-        description: formData.description,
-      },
-    });
+    const user = await authenticateAndGetUser();
+    const newCategory = {
+      userId: user.id,
+      name: formData.name,
+      description: formData.description,
+    };
+    const category = await CategoryService.createNewCategory(newCategory);
     revalidatePath("/categories");
     return category;
   } catch (err) {
@@ -251,28 +184,8 @@ export const createNewCategory = async (formData: CreateCategoryFormValues) => {
 
 export const getAllTasks = async () => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("You must be signed in");
-    }
-
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!user) {
-      throw new Error("User not found");
-    }
-    const tasks = await prisma.task.findMany({
-      where: {
-        userId: user.id,
-      },
-      select: {
-        id: true,
-        title: true,
-      },
-    });
+    const user = await authenticateAndGetUser();
+    const tasks = await TaskService.getAllTasks(user.id);
     return tasks;
   } catch (err) {
     console.error(err);
@@ -285,19 +198,16 @@ export const createTaskCategories = async (
   categoryId: string
 ) => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("You must be signed in");
-    }
+    await authenticateAndGetUser();
     const taskCategories = taskIds.map((taskId) => {
       return {
         taskId,
         categoryId,
       };
     });
-    const newTaskCategories = await prisma.taskCategory.createMany({
-      data: taskCategories,
-    });
+    const newTaskCategories = await TaskCategoryService.createTaskCategories(
+      taskCategories
+    );
     revalidatePath(`/categories/${categoryId}`);
     return newTaskCategories;
   } catch (err) {
@@ -308,35 +218,8 @@ export const createTaskCategories = async (
 
 export const getAllTaskLogs = async () => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("You must be signed in");
-    }
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!user) {
-      throw new Error("User not found");
-    }
-    const taskLogs = await prisma.taskLog.findMany({
-      where: {
-        task: {
-          userId: user.id,
-        },
-      },
-      include: {
-        task: {
-          select: {
-            title: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const user = await authenticateAndGetUser();
+    const taskLogs = await TaskLogService.getAllTaskLogs(user.id);
     return taskLogs;
   } catch (err) {
     console.error(err);
@@ -344,25 +227,24 @@ export const getAllTaskLogs = async () => {
   }
 };
 
+export const deleteTaskLog = async (taskLogId: string) => {
+  try {
+    const user = await authenticateAndGetUser();
+    const result = await TaskLogService.deleteTaskLog(taskLogId, user.id);
+    revalidatePath("/logs");
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
 export const getTasksByCategory = async ({
   categoryId,
 }: {
   categoryId: string;
-}): Promise<TaskWithCategory[]> => {
+}) => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("You must be signed in");
-    }
-
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await authenticateAndGetUser();
     const pipeline = [
       {
         $match: {
@@ -437,7 +319,7 @@ export const getTasksByCategory = async ({
       },
     ];
 
-    const tasks = await prisma.taskCategory.aggregateRaw({ pipeline });
+    const tasks = await TaskCategoryService.getTasksByCategory(pipeline);
     return tasks as unknown as TaskWithCategory[];
   } catch (err) {
     console.error(err);
@@ -447,11 +329,7 @@ export const getTasksByCategory = async ({
 
 export const createUser = async (clerkUserId: string) => {
   try {
-    const user = await prisma.user.create({
-      data: {
-        clerkUserId,
-      },
-    });
+    const user = await UserService.createUser(clerkUserId);
     return user;
   } catch (err) {
     console.error(err);
@@ -463,43 +341,15 @@ export const updateTask = async (
   formValues: UpdateTaskFormValues
 ) => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("You must be signed in");
-    }
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!user) {
-      throw new Error("User not found");
-    }
-    const result = await prisma.$transaction(async (tx) => {
-      const task = await tx.task.update({
-        where: {
-          userId: user.id,
-          id: taskId,
-        },
-        data: {
-          title: formValues.title,
-          description: formValues.description,
-          dueDate: formValues.dueDate,
-          priority: formValues.priority,
-          status: formValues.status,
-        },
-      });
-
-      await tx.taskLog.create({
-        data: {
-          taskId: task.id,
-          title: "Task Updated",
-          action: "UPDATED",
-        },
-      });
-
-      return task;
-    });
+    const user = await authenticateAndGetUser();
+    const updatedTask = {
+      title: formValues.title,
+      description: formValues.description,
+      dueDate: formValues.dueDate,
+      priority: formValues.priority,
+      status: formValues.status,
+    };
+    const result = await TaskService.updateTask(taskId, user.id, updatedTask);
     revalidatePath("/tasks");
     revalidatePath("/logs");
     return result;
@@ -509,45 +359,54 @@ export const updateTask = async (
   }
 };
 
+export const updateCategory = async (
+  categoryId: string,
+  formValues: UpdateCategoryFormValues
+) => {
+  try {
+    const user = await authenticateAndGetUser();
+    const updatedCategory = {
+      name: formValues.name,
+      description: formValues.description,
+    };
+    const result = await CategoryService.updateCategory(
+      categoryId,
+      user.id,
+      updatedCategory
+    );
+    revalidatePath("/categories");
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
+
+export const deleteCategory = async (categoryId: string) => {
+  try {
+    const user = await authenticateAndGetUser();
+    const result = await CategoryService.deleteCategory(categoryId, user.id);
+    revalidatePath("/categories");
+    revalidatePath("/tasks");
+    return result;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
+};
 export const updateStatusOrPriority = async (
   taskId: string,
   valueType: "Status" | "Priority",
   value: Status | Priority
 ) => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("You must be signed in");
-    }
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!user) {
-      throw new Error("User not found");
-    }
-    const result = await prisma.$transaction(async (tx) => {
-      const task = await tx.task.update({
-        where: {
-          userId: user.id,
-          id: taskId,
-        },
-        data: {
-          [valueType.toLowerCase()]: value,
-        },
-      });
-
-      await tx.taskLog.create({
-        data: {
-          taskId: task.id,
-          title: `Task ${valueType} Updated`,
-          action: "UPDATED",
-        },
-      });
-
-      return task;
-    });
+    const user = await authenticateAndGetUser();
+    const result = await TaskService.updateStatusOrPriority(
+      taskId,
+      user.id,
+      valueType,
+      value
+    );
     revalidatePath("/tasks");
     revalidatePath("/logs");
     return result;
@@ -559,45 +418,8 @@ export const updateStatusOrPriority = async (
 
 export const deleteTask = async (taskId: string) => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("You must be signed in");
-    }
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!user) {
-      throw new Error("User not found");
-    }
-    const result = await prisma.$transaction(async (tx) => {
-      await tx.taskCategory.deleteMany({
-        where: {
-          taskId,
-        },
-      });
-      await tx.taskLog.deleteMany({
-        where: {
-          taskId,
-        },
-      });
-      const task = await tx.task.delete({
-        where: {
-          userId: user.id,
-          id: taskId,
-        },
-      });
-      await tx.taskLog.create({
-        data: {
-          taskId: task.id,
-          title: `${task.title} task deleted`,
-          action: "DELETED",
-        },
-      });
-
-      return task;
-    });
+    const user = await authenticateAndGetUser();
+    const result = await TaskService.deleteTask(taskId, user.id);
     revalidatePath("/tasks");
     revalidatePath("/logs");
     return result;
@@ -612,24 +434,11 @@ export const deleteTaskCategory = async (
   categoryId: string
 ) => {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      throw new Error("You must be signed in");
-    }
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkUserId: userId,
-      },
-    });
-    if (!user) {
-      throw new Error("User not found");
-    }
-    const result = await prisma.taskCategory.deleteMany({
-      where: {
-        taskId,
-        categoryId,
-      },
-    });
+    await authenticateAndGetUser();
+    const result = await TaskCategoryService.deleteTaskCategory(
+      taskId,
+      categoryId
+    );
     revalidatePath("/tasks");
     revalidatePath(`/categories/${categoryId}`);
     return result;

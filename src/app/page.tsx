@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
+  const { userId } = await auth();
+  if (userId) {
+    redirect("/tasks");
+  }
   return (
     <div className="md:col-span-12">
       <section className="py-20">

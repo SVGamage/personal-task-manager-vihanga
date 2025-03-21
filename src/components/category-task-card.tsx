@@ -4,7 +4,7 @@ import { Card } from "./ui/card";
 import { CalendarDays, Clock4 } from "lucide-react";
 import { TaskWithCategory } from "@/app/types";
 
-import DeleteTaskModal from "./delete-task-modal";
+import DeleteModal from "./delete-modal";
 import { toast } from "sonner";
 import { deleteTaskCategory } from "@/app/actions/actions";
 import { useParams, useSearchParams } from "next/navigation";
@@ -58,7 +58,11 @@ export default function CategoryTaskCard({ task }: CategoryTaskCardProps) {
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-2">
-          <DeleteTaskModal handleDelete={handleDelete} task={task} />
+          <DeleteModal
+            handleDelete={handleDelete}
+            type="task"
+            name={task.title}
+          />
         </div>
       </div>
     </Card>

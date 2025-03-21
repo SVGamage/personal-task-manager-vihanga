@@ -7,7 +7,7 @@ import { Priority, Status, TaskWithCategory } from "@/app/types";
 import UpdateTaskModal from "./update-task-modal";
 import CategoryGroup from "./category-group";
 import SelectMenu from "./select-menu";
-import DeleteTaskModal from "./delete-task-modal";
+import DeleteModal from "./delete-modal";
 import { deleteTask, updateStatusOrPriority } from "@/app/actions/actions";
 import { toast } from "sonner";
 
@@ -95,7 +95,11 @@ export default function TaskCard({ task }: TaskCardProps) {
           />
           <div className="flex gap-2">
             <UpdateTaskModal task={task} />
-            <DeleteTaskModal handleDelete={handleDelete} task={task} />
+            <DeleteModal
+              handleDelete={handleDelete}
+              type="task"
+              name={task.title}
+            />
           </div>
         </div>
       </div>
