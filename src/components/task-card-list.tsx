@@ -7,14 +7,16 @@ interface TaskCardListProps {
 }
 export default async function TaskCardList({ tasks }: TaskCardListProps) {
   return (
-    <div className="grid gap-4">
+    <>
       {tasks.length > 0 ? (
-        tasks.map((task) => {
-          return <TaskCard key={task.id} task={task} />;
-        })
+        <div className="grid gap-4">
+          {tasks.map((task) => {
+            return <TaskCard key={task.id} task={task} />;
+          })}
+        </div>
       ) : (
         <ItemNotFound name="Tasks" />
       )}
-    </div>
+    </>
   );
 }
